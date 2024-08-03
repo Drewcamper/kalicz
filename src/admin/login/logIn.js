@@ -9,7 +9,7 @@ const logGoogleUser = user => {
 };
 
 const authAdmin = userEmail => {
-  if (userEmail === 'drewcamperdev@gmail.com') {
+  if (userEmail === 'drewcamperdev@gmail.com' || userEmail === 'matekalicz@gmail.com') {
     console.log(userEmail);
     return true;
   }
