@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { collection, getDocs, deleteDoc, doc, updateDoc, writeBatch } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { collection, getDocs, deleteDoc, doc, writeBatch } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage, ref, deleteObject } from 'firebase/storage';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const firestore = getFirestore(); // Initialize Firestore
+const firestore = getFirestore();
 
 export const ShowImages = () => {
   const [images, setImages] = useState([]);
   const [error, setError] = useState(null);
-  const [editingIndex, setEditingIndex] = useState(null); // Track which index is being edited
-  const [newIndex, setNewIndex] = useState(null); // Track the new index value
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [newIndex, setNewIndex] = useState(null);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -20,7 +20,7 @@ export const ShowImages = () => {
           id: doc.id,
           ...doc.data(),
         }));
-        // Sort images by order field
+
         imagesList.sort((a, b) => a.order - b.order);
         setImages(imagesList);
       } catch (error) {
@@ -34,15 +34,12 @@ export const ShowImages = () => {
 
   const handleDelete = async (id, url) => {
     try {
-      // Delete from Firestore
       await deleteDoc(doc(firestore, 'images', id));
 
-      // Delete from Firebase Storage
       const storage = getStorage();
       const storageRef = ref(storage, url);
       await deleteObject(storageRef);
 
-      // Update state
       setImages(prevImages => prevImages.filter(image => image.id !== id));
     } catch (error) {
       console.error('Error deleting image:', error);
@@ -59,19 +56,17 @@ export const ShowImages = () => {
     const [movedImage] = reorderedImages.splice(source.index, 1);
     reorderedImages.splice(destination.index, 0, movedImage);
 
-    // Update the order to start from 1
     const updatedImages = reorderedImages.map((image, index) => ({ ...image, order: index + 1 }));
 
     setImages(updatedImages);
 
     try {
-      // Update Firestore with new order
-      const batch = writeBatch(firestore); // Use writeBatch to create a batch
+      const batch = writeBatch(firestore);
       updatedImages.forEach(image => {
         const imageRef = doc(firestore, 'images', image.id);
         batch.update(imageRef, { order: image.order });
       });
-      await batch.commit(); // Commit the batch
+      await batch.commit();
     } catch (error) {
       console.error('Error updating image order:', error);
       setError(error.message);
@@ -87,7 +82,6 @@ export const ShowImages = () => {
     try {
       const updatedImages = images.map(img => (img.id === id ? { ...img, order: newIndex } : img)).sort((a, b) => a.order - b.order);
 
-      // Adjust index to start from 1
       const reorderedImages = updatedImages.map((image, index) => ({ ...image, order: index + 1 }));
 
       setImages(reorderedImages);
@@ -134,8 +128,8 @@ export const ShowImages = () => {
                         </div>
                       ) : (
                         <div>
-                          <span>Order: {index + 1}</span> {/* Display order starting from 1 */}
-                          <button onClick={() => handleEditIndex(image.id, index + 1)}>Edit</button> {/* Pass the index + 1 */}
+                          <span>Order: {index + 1}</span>
+                          <button onClick={() => handleEditIndex(image.id, index + 1)}>Edit</button>
                           <button style={styles.deleteButton} onClick={() => handleDelete(image.id, image.url)}>
                             Delete
                           </button>
@@ -161,12 +155,13 @@ const styles = {
     backgroundColor: 'lightblue',
     overflowY: 'auto',
     padding: '20px',
+    paddingBottom: '100px',
     boxSizing: 'border-box',
   },
   grid: {
     display: 'grid',
     gridTemplateColumns: 'repeat(3, 1fr)',
-    gap: '10px', // Space between grid items
+    gap: '10px',
   },
   gridItem: {
     display: 'flex',
@@ -180,7 +175,7 @@ const styles = {
   },
   image: {
     maxWidth: '100%',
-    maxHeight: '150px', // Adjust max height to fit delete button
+    maxHeight: '150px',
   },
   deleteButton: {
     marginTop: '10px',
@@ -197,6 +192,3 @@ const styles = {
 };
 
 export default ShowImages;
-
-
-
