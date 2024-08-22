@@ -1,14 +1,19 @@
-import {signInWithGooglePopup} from './firebase.utils'
+import React from 'react';
+import { login } from './logIn';
 
-const SignIn = () => {
-const logGoogleUser = async () => {
-        const response = await signInWithGooglePopup();
-        console.log(response);
+const SignIn = ({ onLogin }) => {
+  const handleLogin = async () => {
+    const success = await login();
+    if (success) {
+      onLogin();
     }
-return (
-        <div>
-            <button onClick={logGoogleUser}>Sign In With Google</button>
-        </div>
-    )
-}
+  };
+
+  return (
+    <>
+      <button onClick={handleLogin}>Sign In With Google</button>
+    </>
+  );
+};
+
 export default SignIn;
