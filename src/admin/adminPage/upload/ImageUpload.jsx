@@ -1,126 +1,3 @@
-// import { useState, useEffect } from 'react';
-// import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-// import { firestore } from '../../firebase.utils';
-// import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
-// import { useDropzone } from 'react-dropzone';
-// import PropTypes from 'prop-types';
-
-// const ImageUpload = ({ onUpload }) => {
-//   const [selectedImage, setSelectedImage] = useState(null);
-//   const [progress, setProgress] = useState(0);
-//   const [maxOrder, setMaxOrder] = useState(0);
-//   const [errorMessage, setErrorMessage] = useState('');
-
-//   useEffect(() => {
-//     const fetchMaxOrder = async () => {
-//       try {
-//         const q = query(collection(firestore, 'images'), orderBy('order', 'desc'));
-//         const querySnapshot = await getDocs(q);
-//         if (!querySnapshot.empty) {
-//           const lastDoc = querySnapshot.docs[0];
-//           setMaxOrder(lastDoc.data().order || 0);
-//         }
-//       } catch (error) {
-//         console.error('Error fetching max order:', error);
-//       }
-//     };
-
-//     fetchMaxOrder();
-//   }, []);
-
-//   const handleDrop = (acceptedFiles, rejectedFiles) => {
-//     if (rejectedFiles.length > 0) {
-//       setErrorMessage('Only image and video files are allowed.');
-//       return;
-//     }
-//     const file = acceptedFiles[0];
-//     if (file) {
-//       setSelectedImage(file);
-//       handleUpload(file);
-//     }
-//   };
-
-//   const handleUpload = file => {
-//     if (!file) return;
-
-//     const storage = getStorage();
-//     const storageRef = ref(storage, `images/${file.name}`);
-//     const uploadTask = uploadBytesResumable(storageRef, file);
-
-//     uploadTask.on(
-//       'state_changed',
-//       snapshot => {
-//         const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-//         setProgress(progress);
-//       },
-//       error => {
-//         console.error('Upload error:', error);
-//       },
-//       () => {
-//         getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
-//           const imageRef = collection(firestore, 'images');
-//           try {
-//             await addDoc(imageRef, {
-//               url: downloadURL,
-//               name: file.name,
-//               order: maxOrder + 1,
-//             });
-//             setSelectedImage(null);
-//             setProgress(0);
-//             setMaxOrder(maxOrder + 1);
-//             setErrorMessage('');
-//             if (onUpload) onUpload();
-//           } catch (error) {
-//             console.error('Error saving metadata:', error);
-//           }
-//         });
-//       }
-//     );
-//   };
-
-//   const { getRootProps, getInputProps } = useDropzone({
-//     onDrop: handleDrop,
-//     accept: {
-//       'image/*': [],
-//     },
-//     multiple: false,
-//   });
-
-//   return (
-//     <div style={{ width: '25%' }}>
-//       <div {...getRootProps()} style={styles.dropzone}>
-//         <input {...getInputProps()} />
-//         <p>Drag &apos;n&apos; drop an image or click to upload an image</p>
-//       </div>
-//       {errorMessage && <p style={styles.error}>{errorMessage}</p>}
-//       {progress > 0 && <p>Upload Progress: {progress}%</p>}
-//       {selectedImage && <img src={URL.createObjectURL(selectedImage)} alt={selectedImage.name} style={{ width: '90%' }} />}
-//     </div>
-//   );
-// };
-
-// const styles = {
-//   dropzone: {
-//     border: '2px dashed #cccccc',
-//     borderRadius: '8px',
-//     padding: '20px',
-//     textAlign: 'center',
-//     cursor: 'pointer',
-//     backgroundColor: '#f7f7f7',
-//     marginBottom: '10px',
-//   },
-//   error: {
-//     color: 'red',
-//     marginTop: '10px',
-//   },
-// };
-
-// export default ImageUpload;
-
-// ImageUpload.propTypes = {
-//   onUpload: PropTypes.func,
-// };
-
 import { useState, useEffect } from 'react';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { firestore } from '../../firebase.utils';
@@ -205,7 +82,7 @@ const ImageUpload = ({ onUpload }) => {
     accept: {
       'image/*': [],
     },
-    multiple: true, // Allow multiple files to be selected
+    multiple: true,
   });
 
   return (
@@ -219,9 +96,7 @@ const ImageUpload = ({ onUpload }) => {
         <div style={styles.scrollableContainer}>
           {selectedImages.map((file, index) => (
             <div key={index} style={styles.imageContainer}>
-              <p>
-                {file.name} 
-              </p>
+              <p>{file.name}</p>
               <img src={URL.createObjectURL(file)} alt={file.name} style={{ width: '90%' }} />
               {progress[index] || 0}%
             </div>
@@ -252,15 +127,14 @@ const styles = {
     marginTop: '10px',
   },
   scrollableContainer: {
-    flexGrow: 1, // Take up the remaining space
-    overflowY: 'auto', // Enable vertical scrolling
+    flexGrow: 1,
+    overflowY: 'auto',
     padding: '10px',
     marginBottom: '100px',
-
   },
   imageContainer: {
     marginBottom: '50px',
-    border: '1px solid black'
+    border: '1px solid black',
   },
 };
 
@@ -269,4 +143,3 @@ export default ImageUpload;
 ImageUpload.propTypes = {
   onUpload: PropTypes.func,
 };
-
