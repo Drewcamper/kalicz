@@ -1,13 +1,15 @@
-// import React, { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 // import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-// import { firestore } from '../../firebase.utils'; // Ensure you have this import
+// import { firestore } from '../../firebase.utils';
 // import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
 // import { useDropzone } from 'react-dropzone';
+// import PropTypes from 'prop-types';
 
 // const ImageUpload = ({ onUpload }) => {
 //   const [selectedImage, setSelectedImage] = useState(null);
 //   const [progress, setProgress] = useState(0);
 //   const [maxOrder, setMaxOrder] = useState(0);
+//   const [errorMessage, setErrorMessage] = useState('');
 
 //   useEffect(() => {
 //     const fetchMaxOrder = async () => {
@@ -26,7 +28,11 @@
 //     fetchMaxOrder();
 //   }, []);
 
-//   const handleDrop = acceptedFiles => {
+//   const handleDrop = (acceptedFiles, rejectedFiles) => {
+//     if (rejectedFiles.length > 0) {
+//       setErrorMessage('Only image and video files are allowed.');
+//       return;
+//     }
 //     const file = acceptedFiles[0];
 //     if (file) {
 //       setSelectedImage(file);
@@ -52,18 +58,18 @@
 //       },
 //       () => {
 //         getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
-//           // Save metadata to Firestore
 //           const imageRef = collection(firestore, 'images');
 //           try {
 //             await addDoc(imageRef, {
 //               url: downloadURL,
 //               name: file.name,
-//               order: maxOrder + 1, // Set the new order to the next number
+//               order: maxOrder + 1,
 //             });
 //             setSelectedImage(null);
 //             setProgress(0);
-//             setMaxOrder(maxOrder + 1); // Update maxOrder state
-//             if (onUpload) onUpload(); // Notify parent component
+//             setMaxOrder(maxOrder + 1);
+//             setErrorMessage('');
+//             if (onUpload) onUpload();
 //           } catch (error) {
 //             console.error('Error saving metadata:', error);
 //           }
@@ -76,16 +82,17 @@
 //     onDrop: handleDrop,
 //     accept: {
 //       'image/*': [],
-//       'video/*': [],
 //     },
+//     multiple: false,
 //   });
 
 //   return (
 //     <div style={{ width: '25%' }}>
 //       <div {...getRootProps()} style={styles.dropzone}>
 //         <input {...getInputProps()} />
-//         <p>Drag 'n' drop an image or video here, or click to select one</p>
+//         <p>Drag &apos;n&apos; drop an image or click to upload an image</p>
 //       </div>
+//       {errorMessage && <p style={styles.error}>{errorMessage}</p>}
 //       {progress > 0 && <p>Upload Progress: {progress}%</p>}
 //       {selectedImage && <img src={URL.createObjectURL(selectedImage)} alt={selectedImage.name} style={{ width: '90%' }} />}
 //     </div>
@@ -102,20 +109,28 @@
 //     backgroundColor: '#f7f7f7',
 //     marginBottom: '10px',
 //   },
+//   error: {
+//     color: 'red',
+//     marginTop: '10px',
+//   },
 // };
 
 // export default ImageUpload;
 
+// ImageUpload.propTypes = {
+//   onUpload: PropTypes.func,
+// };
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { firestore } from '../../firebase.utils'; // Ensure you have this import
+import { firestore } from '../../firebase.utils';
 import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { useDropzone } from 'react-dropzone';
+import PropTypes from 'prop-types';
 
 const ImageUpload = ({ onUpload }) => {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [progress, setProgress] = useState(0);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [progress, setProgress] = useState({});
   const [maxOrder, setMaxOrder] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -141,14 +156,13 @@ const ImageUpload = ({ onUpload }) => {
       setErrorMessage('Only image and video files are allowed.');
       return;
     }
-    const file = acceptedFiles[0];
-    if (file) {
-      setSelectedImage(file);
-      handleUpload(file);
+    if (acceptedFiles.length > 0) {
+      setSelectedImages(acceptedFiles);
+      acceptedFiles.forEach((file, index) => handleUpload(file, index));
     }
   };
 
-  const handleUpload = file => {
+  const handleUpload = (file, index) => {
     if (!file) return;
 
     const storage = getStorage();
@@ -158,27 +172,26 @@ const ImageUpload = ({ onUpload }) => {
     uploadTask.on(
       'state_changed',
       snapshot => {
-        const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-        setProgress(progress);
+        const progressPercent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        setProgress(prevProgress => ({
+          ...prevProgress,
+          [index]: progressPercent,
+        }));
       },
       error => {
         console.error('Upload error:', error);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
-          // Save metadata to Firestore
           const imageRef = collection(firestore, 'images');
           try {
             await addDoc(imageRef, {
               url: downloadURL,
               name: file.name,
-              order: maxOrder + 1, // Set the new order to the next number
+              order: maxOrder + 1 + index, // Ensure unique order for each image
             });
-            setSelectedImage(null);
-            setProgress(0);
-            setMaxOrder(maxOrder + 1); // Update maxOrder state
-            setErrorMessage(''); // Clear error message on successful upload
-            if (onUpload) onUpload(); // Notify parent component
+            setErrorMessage('');
+            if (onUpload) onUpload();
           } catch (error) {
             console.error('Error saving metadata:', error);
           }
@@ -191,25 +204,40 @@ const ImageUpload = ({ onUpload }) => {
     onDrop: handleDrop,
     accept: {
       'image/*': [],
-      // 'video/*': [],
     },
-    multiple: false, // Allow only one file at a time
+    multiple: true, // Allow multiple files to be selected
   });
 
   return (
-    <div style={{ width: '25%' }}>
+    <div style={styles.container}>
       <div {...getRootProps()} style={styles.dropzone}>
         <input {...getInputProps()} />
-        <p>Drag 'n' drop an image or video here, or click to select one</p>
+        <p>Drag &apos;n&apos; drop images or videos here, or click to select them</p>
       </div>
       {errorMessage && <p style={styles.error}>{errorMessage}</p>}
-      {progress > 0 && <p>Upload Progress: {progress}%</p>}
-      {selectedImage && <img src={URL.createObjectURL(selectedImage)} alt={selectedImage.name} style={{ width: '90%' }} />}
+      {selectedImages.length > 0 && (
+        <div style={styles.scrollableContainer}>
+          {selectedImages.map((file, index) => (
+            <div key={index} style={styles.imageContainer}>
+              <p>
+                {file.name} 
+              </p>
+              <img src={URL.createObjectURL(file)} alt={file.name} style={{ width: '90%' }} />
+              {progress[index] || 0}%
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
 const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '25%',
+  },
   dropzone: {
     border: '2px dashed #cccccc',
     borderRadius: '8px',
@@ -223,6 +251,22 @@ const styles = {
     color: 'red',
     marginTop: '10px',
   },
+  scrollableContainer: {
+    flexGrow: 1, // Take up the remaining space
+    overflowY: 'auto', // Enable vertical scrolling
+    padding: '10px',
+    marginBottom: '100px',
+
+  },
+  imageContainer: {
+    marginBottom: '50px',
+    border: '1px solid black'
+  },
 };
 
 export default ImageUpload;
+
+ImageUpload.propTypes = {
+  onUpload: PropTypes.func,
+};
+
