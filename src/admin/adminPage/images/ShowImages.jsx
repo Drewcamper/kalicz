@@ -9,12 +9,12 @@ import { ToastContainer } from 'react-toastify';
 import { ImageItem } from './imageItem';
 import { chunkImages } from './utils';
 
-import { useAdminContext } from '../../context';
+import { useImageContext } from '../../../context';
 const firestore = getFirestore();
 const CHUNK_SIZE = 3;
 
 export const ShowImages = () => {
-  const { images, setImages } = useAdminContext();
+  const { images, setImages } = useImageContext();
 
   const [error, setError] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);

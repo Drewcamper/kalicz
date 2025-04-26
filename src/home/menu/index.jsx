@@ -18,6 +18,7 @@ export const Menu = () => {
 const styles = {
   container: {
     display: 'flex',
+    padding: '6px',
   },
   link: {
     marginRight: '18px',

@@ -1,11 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { fetchImages } from '../adminPage/images/services';
+import { fetchImages } from '../admin/adminPage/images/services';
 
 import { toast } from 'react-toastify';
 
-const AdminContext = createContext();
+const ImageContext = createContext();
 
-export const AdminProvider = ({ children }) => {
+export const ImageProvider = ({ children }) => {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
@@ -22,10 +22,10 @@ export const AdminProvider = ({ children }) => {
   }, []);
 
   return (
-    <AdminContext.Provider value={{ images, setImages }}>
+    <ImageContext.Provider value={{ images, setImages }}>
       {children}
-    </AdminContext.Provider>
+    </ImageContext.Provider>
   );
 };
 
-export const useAdminContext = () => useContext(AdminContext);
+export const useImageContext = () => useContext(ImageContext);
