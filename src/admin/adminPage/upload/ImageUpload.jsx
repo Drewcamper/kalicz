@@ -3,13 +3,12 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/
 import { firestore } from '../../firebase.utils';
 import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { useDropzone } from 'react-dropzone';
-import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 
 const ImageUpload = ({ onUpload }) => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [progress, setProgress] = useState({});
   const [maxOrder, setMaxOrder] = useState(0);
-  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchMaxOrder = async () => {
@@ -21,7 +20,7 @@ const ImageUpload = ({ onUpload }) => {
           setMaxOrder(lastDoc.data().order || 0);
         }
       } catch (error) {
-        console.error('Error fetching max order:', error);
+        toast('Error fetching max order:', error);
       }
     };
 
@@ -30,7 +29,7 @@ const ImageUpload = ({ onUpload }) => {
 
   const handleDrop = (acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) {
-      setErrorMessage('Only image and video files are allowed.');
+      toast('Only image and video files are allowed.');
       return;
     }
     if (acceptedFiles.length > 0) {
@@ -49,7 +48,9 @@ const ImageUpload = ({ onUpload }) => {
     uploadTask.on(
       'state_changed',
       snapshot => {
-        const progressPercent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+        const progressPercent = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
         setProgress(prevProgress => ({
           ...prevProgress,
           [index]: progressPercent,
@@ -67,10 +68,9 @@ const ImageUpload = ({ onUpload }) => {
               name: file.name,
               order: maxOrder + 1 + index, // Ensure unique order for each image
             });
-            setErrorMessage('');
             if (onUpload) onUpload();
           } catch (error) {
-            console.error('Error saving metadata:', error);
+            toast('Error saving metadata:', error);
           }
         });
       }
@@ -91,13 +91,16 @@ const ImageUpload = ({ onUpload }) => {
         <input {...getInputProps()} />
         <p>Drag &apos;n&apos; drop images or videos here, or click to select them</p>
       </div>
-      {errorMessage && <p style={styles.error}>{errorMessage}</p>}
       {selectedImages.length > 0 && (
         <div style={styles.scrollableContainer}>
           {selectedImages.map((file, index) => (
             <div key={index} style={styles.imageContainer}>
               <p>{file.name}</p>
-              <img src={URL.createObjectURL(file)} alt={file.name} style={{ width: '90%' }} />
+              <img
+                src={URL.createObjectURL(file)}
+                alt={file.name}
+                style={{ width: '90%' }}
+              />
               {progress[index] || 0}%
             </div>
           ))}
@@ -122,10 +125,6 @@ const styles = {
     backgroundColor: '#f7f7f7',
     marginBottom: '10px',
   },
-  error: {
-    color: 'red',
-    marginTop: '10px',
-  },
   scrollableContainer: {
     flexGrow: 1,
     overflowY: 'auto',
@@ -139,7 +138,3 @@ const styles = {
 };
 
 export default ImageUpload;
-
-ImageUpload.propTypes = {
-  onUpload: PropTypes.func,
-};

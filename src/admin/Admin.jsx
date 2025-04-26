@@ -3,6 +3,8 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import SignIn from './login/SignIn';
 import AdminPage from './adminPage/AdminPage';
 
+import { AdminProvider } from './context';
+
 export const Admin = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
 
@@ -23,7 +25,17 @@ export const Admin = () => {
     setIsAuthorized(true);
   };
 
-  return <>{isAuthorized ? <AdminPage onLogout={() => setIsAuthorized(false)} /> : <SignIn onLogin={handleLogin} />}</>;
+  return (
+    <>
+      {isAuthorized ? (
+        <AdminProvider>
+          <AdminPage onLogout={() => setIsAuthorized(false)} />
+        </AdminProvider>
+      ) : (
+        <SignIn onLogin={handleLogin} />
+      )}
+    </>
+  );
 };
 
 export default Admin;

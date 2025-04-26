@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import ImageUpload from './upload/ImageUpload';
 import { ShowImages } from './images/ShowImages';
 import PropTypes from 'prop-types';
 
 function AdminPage({ onLogout }) {
   const [refreshKey, setRefreshKey] = useState(0);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   const handleUpload = () => {
-    setRefreshKey(prevKey => prevKey + 1); 
+    setRefreshKey(prevKey => prevKey + 1);
   };
 
   const handleLogout = async () => {
@@ -23,15 +23,10 @@ function AdminPage({ onLogout }) {
     }
   };
 
-  const goToHome = () => {
-    navigate('/'); 
-  };
-
   return (
     <div style={styles.container}>
       <div style={styles.buttons}>
-        {' '}
-        <button onClick={goToHome} style={styles.homeButton}>
+        <button onClick={() => navigate('/')} style={styles.homeButton}>
           Home
         </button>
         <button onClick={handleLogout} style={styles.logoutButton}>
@@ -88,5 +83,5 @@ const styles = {
 export default AdminPage;
 
 AdminPage.propTypes = {
-  onLogout: PropTypes.func, 
+  onLogout: PropTypes.func,
 };
