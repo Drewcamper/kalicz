@@ -1,5 +1,7 @@
+import { Menu } from './menu';
+
 function Home() {
-  return <div>Home</div>;
+  return <Menu />;
 }
 
 export default Home;
