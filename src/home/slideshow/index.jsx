@@ -5,6 +5,7 @@ export const Slideshow = () => {
   const { images } = useImageContext();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorStyle, setCursorStyle] = useState('');
+  console.log(images);
 
   const handleMouseMove = e => {
     const screenWidth = window.innerWidth;
