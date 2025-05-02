@@ -12,6 +12,7 @@ export const ImageProvider = ({ children }) => {
     const getImages = async () => {
       try {
         const data = await fetchImages();
+        console.log(data);
         setImages(data);
       } catch (error) {
         toast(error.message);

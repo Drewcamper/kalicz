@@ -5,8 +5,10 @@ import { toast } from 'react-toastify';
 const firestore = getFirestore();
 
 export const fetchCollection = async collectionName => {
+  console.log('Fetching collection:', collectionName);
   try {
     const querySnapshot = await getDocs(collection(firestore, collectionName));
+    console.log({ firestore, collectionName });
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     toast(error);

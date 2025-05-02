@@ -3,6 +3,8 @@ import { fetchCollection, deleteDocument, updateDocument } from '../../../../ser
 export const fetchImages = async () => {
   const imagesList = await fetchCollection('images');
   imagesList.sort((a, b) => a.order - b.order);
+
+  console.log(imagesList);
   return imagesList;
 };
 
