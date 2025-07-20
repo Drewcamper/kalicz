@@ -11,9 +11,13 @@ export const ImageProvider = ({ children }) => {
   useEffect(() => {
     const getImages = async () => {
       try {
-        const data = await fetchImages();
-        console.log(data);
-        setImages(data);
+        const loaderImages = await fetchImages(false);
+        setImages(loaderImages);
+
+        const originalImages = await fetchImages(true);
+        if (originalImages?.length) {
+          setImages(originalImages);
+        }
       } catch (error) {
         toast(error.message);
       }

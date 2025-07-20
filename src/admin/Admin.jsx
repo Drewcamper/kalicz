@@ -3,7 +3,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import SignIn from './login/SignIn';
 import AdminPage from './adminPage/AdminPage';
 
-import { ImageProvider } from '../context';
+// import { ImageProvider } from '../context';
 
 export const Admin = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -28,9 +28,7 @@ export const Admin = () => {
   return (
     <>
       {isAuthorized ? (
-        <ImageProvider>
-          <AdminPage onLogout={() => setIsAuthorized(false)} />
-        </ImageProvider>
+        <AdminPage onLogout={() => setIsAuthorized(false)} />
       ) : (
         <SignIn onLogin={handleLogin} />
       )}

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useImageContext } from '../../context';
 
+import { styles } from './styles';
+
 export const Slideshow = () => {
   const { images } = useImageContext();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorStyle, setCursorStyle] = useState('');
-  console.log(images);
 
   const handleMouseMove = e => {
     const screenWidth = window.innerWidth;
@@ -48,15 +49,18 @@ export const Slideshow = () => {
   };
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('click', handleClick);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('click', handleClick);
-    };
-  }, [images.length]);
+    console.log(images);
+    if (images.length > 0) {
+      window.addEventListener('keydown', handleKeyDown);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('click', handleClick);
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('click', handleClick);
+      };
+    }
+  }, [images]);
 
   if (images.length === 0) return <p>No images to display</p>;
 
@@ -66,35 +70,8 @@ export const Slideshow = () => {
     <div style={{ ...styles.container, cursor: cursorStyle }}>
       <div style={styles.imageWrapper}>
         <img src={currentImage.url} alt={currentImage.name} style={styles.image} />
-        <p style={styles.caption}>{currentImage.name}</p>
+        {/* <p style={styles.caption}>{currentImage.name}</p> */}
       </div>
     </div>
   );
-};
-
-// Styles object
-const styles = {
-  container: {
-    width: '100vw',
-    height: '100vh',
-    overflow: 'hidden',
-    backgroundColor: 'transparent',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  imageWrapper: {
-    textAlign: 'center',
-  },
-  image: {
-    maxWidth: '90vw',
-    maxHeight: '80vh',
-    objectFit: 'contain',
-  },
-  caption: {
-    color: 'black',
-    marginTop: '10px',
-    fontSize: '1rem',
-  },
 };

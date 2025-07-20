@@ -1,3 +1,5 @@
+import { styles } from './styles';
+
 export const EditImageInfo = ({
   maxImages,
   image,
@@ -37,18 +39,6 @@ export const EditImageInfo = ({
       )}
     </div>
   );
-};
-
-const styles = {
-  deleteButton: {
-    marginTop: '10px',
-    padding: '5px 10px',
-    backgroundColor: '#ff5c5c',
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-  },
 };
 
 export default EditImageInfo;

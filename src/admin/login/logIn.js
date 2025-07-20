@@ -1,19 +1,18 @@
 import { signInWithGooglePopup } from '../firebase.utils';
+import { toast } from 'react-toastify';
 
 const logGoogleUser = user => {
   try {
-    console.log(user);
+    toast(`Welcome ${user}!`);
   } catch (error) {
-    console.error('Error logging Google user:', error);
+    throw new Error('Error logging Google user:', error);
   }
 };
 
 const authAdmin = userEmail => {
   if (userEmail === 'drewcamperdev@gmail.com' || userEmail === 'matekalicz@gmail.com') {
-    console.log(userEmail);
     return true;
   }
-  console.log(userEmail);
   return false;
 };
 
@@ -26,11 +25,11 @@ export const login = async () => {
       logGoogleUser(response.user);
       return true;
     } else {
-      console.log('User is not authorized');
+      toast('User is not authorized');
       return false;
     }
   } catch (error) {
-    console.error('Error during login process:', error);
+    toast('Error during login process:', error);
     return false;
   }
 };

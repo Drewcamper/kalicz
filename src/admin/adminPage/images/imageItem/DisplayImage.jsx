@@ -1,3 +1,5 @@
+import { styles } from "./styles";
+
 function DisplayImage({ image }) {
   return (
     <img
@@ -9,12 +11,5 @@ function DisplayImage({ image }) {
   );
 }
 
-const styles = {
-  image: {
-    maxWidth: '100%',
-    maxHeight: '150px',
-    marginBottom: '10px',
-  },
-};
 
 export default DisplayImage;

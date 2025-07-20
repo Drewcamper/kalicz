@@ -1,27 +1,55 @@
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
+
+// import { styles } from './styles';
+
+// export const Menu = () => {
+//   return (
+//     <div style={styles.container}>
+//       <Link to='/' style={styles.link}>
+//         Máté Kalicz
+//       </Link>
+//       <Link to='/index' style={styles.link}>
+//         index
+//       </Link>
+//       <Link to='/contacts' style={styles.link}>
+//         Contact
+//       </Link>
+//     </div>
+//   );
+// };
+
+import { useNavigate, useLocation } from 'react-router-dom';
+import { styles } from './styles';
+
 export const Menu = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleContactClick = () => {
+    navigate('/contacts', {
+      state: { backgroundLocation: location },
+    });
+  };
+
   return (
     <div style={styles.container}>
-      <Link to='/' style={styles.link}>
+      <a href='/' style={styles.link}>
         Máté Kalicz
-      </Link>
-      <Link to='/index' style={styles.link}>
+      </a>
+      <a href='/index' style={styles.link}>
         index
-      </Link>
-      <Link to='/contacts' style={styles.link}>
+      </a>
+      <button
+        onClick={handleContactClick}
+        style={{
+          ...styles.link,
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 0,
+        }}>
         Contact
-      </Link>
+      </button>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    padding: '6px',
-  },
-  link: {
-    marginRight: '18px',
-    textDecoration: 'none',
-  },
 };

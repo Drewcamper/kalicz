@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { firestore } from '../../firebase.utils';
-import { collection, addDoc, getDocs, query, orderBy } from 'firebase/firestore';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
+import { styles } from './styles';
+
+import { handleUpload } from './utils';
+import { fetchImages } from '../images/services';
 
 const ImageUpload = ({ onUpload }) => {
   const [selectedImages, setSelectedImages] = useState([]);
@@ -11,20 +12,11 @@ const ImageUpload = ({ onUpload }) => {
   const [maxOrder, setMaxOrder] = useState(0);
 
   useEffect(() => {
-    const fetchMaxOrder = async () => {
-      try {
-        const q = query(collection(firestore, 'images'), orderBy('order', 'desc'));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          const lastDoc = querySnapshot.docs[0];
-          setMaxOrder(lastDoc.data().order || 0);
-        }
-      } catch (error) {
-        toast('Error fetching max order:', error);
-      }
+    const loadMaxOrder = async () => {
+      const order = await fetchImages();
+      setMaxOrder(order);
     };
-
-    fetchMaxOrder();
+    loadMaxOrder();
   }, []);
 
   const handleDrop = (acceptedFiles, rejectedFiles) => {
@@ -32,49 +24,13 @@ const ImageUpload = ({ onUpload }) => {
       toast('Only image and video files are allowed.');
       return;
     }
+
     if (acceptedFiles.length > 0) {
       setSelectedImages(acceptedFiles);
-      acceptedFiles.forEach((file, index) => handleUpload(file, index));
+      acceptedFiles.forEach((file, index) => {
+        handleUpload({ file, index, maxOrder, onUpload, setProgress });
+      });
     }
-  };
-
-  const handleUpload = (file, index) => {
-    if (!file) return;
-
-    const storage = getStorage();
-    const storageRef = ref(storage, `images/${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-
-    uploadTask.on(
-      'state_changed',
-      snapshot => {
-        const progressPercent = Math.round(
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-        );
-        setProgress(prevProgress => ({
-          ...prevProgress,
-          [index]: progressPercent,
-        }));
-      },
-      error => {
-        console.error('Upload error:', error);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then(async downloadURL => {
-          const imageRef = collection(firestore, 'images');
-          try {
-            await addDoc(imageRef, {
-              url: downloadURL,
-              name: file.name,
-              order: maxOrder + 1 + index, // Ensure unique order for each image
-            });
-            if (onUpload) onUpload();
-          } catch (error) {
-            toast('Error saving metadata:', error);
-          }
-        });
-      }
-    );
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -108,33 +64,6 @@ const ImageUpload = ({ onUpload }) => {
       )}
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '25%',
-  },
-  dropzone: {
-    border: '2px dashed #cccccc',
-    borderRadius: '8px',
-    padding: '20px',
-    textAlign: 'center',
-    cursor: 'pointer',
-    backgroundColor: '#f7f7f7',
-    marginBottom: '10px',
-  },
-  scrollableContainer: {
-    flexGrow: 1,
-    overflowY: 'auto',
-    padding: '10px',
-    marginBottom: '100px',
-  },
-  imageContainer: {
-    marginBottom: '50px',
-    border: '1px solid black',
-  },
 };
 
 export default ImageUpload;

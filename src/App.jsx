@@ -1,7 +1,9 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Admin } from './admin/Admin';
-import Home from './home/Home';
+import IndexPage from './home/index/IndexPage';
+import { Menu } from './home/menu';
+import { Slideshow } from './home/slideshow';
 import Contacts from './home/contacts';
 
 import { ImageProvider } from './context';
@@ -20,9 +22,11 @@ function App() {
             margin: '0',
             padding: '0',
           }}>
+          <Menu />
           <Routes>
-            <Route path='/' element={<Home />} />
+            <Route path='/' element={<Slideshow />} />
             <Route path='/admin' element={<Admin />} />
+            <Route path='/index' element={<IndexPage />} />
             <Route path='/contacts' element={<Contacts />} />
           </Routes>
         </div>

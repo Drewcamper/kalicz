@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 
+import { styles } from './styles';
+
 function Contacts() {
   return (
     <div style={styles.contactBox}>
@@ -24,30 +26,3 @@ function Contacts() {
 }
 
 export default Contacts;
-
-const styles = {
-  contactBox: {
-    width: '30%',
-    minWidth: '200px',
-    height: '98%',
-    padding: '.5%',
-    display: 'flex',
-    flexDirection: 'row',
-    position: 'relative',
-  },
-  close: {
-    cursor: 'pointer',
-    textDecoration: 'none',
-    height: '24px',
-  },
-  contacts: {
-    border: '1px solid lightgrey',
-    boxSizing: 'border-box',
-    padding: '12px',
-    marginRight: '12px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px',
-    textAlign: 'left',
-  },
-};

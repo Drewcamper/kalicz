@@ -1,0 +1,47 @@
+export const styles = {
+  container: {
+    width: '75%',
+    height: '100%',
+    backgroundColor: 'lightblue',
+    overflowY: 'auto',
+    padding: '20px',
+    paddingBottom: '100px',
+    boxSizing: 'border-box',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column',
+  },
+  gridRow: {
+    display: 'flex',
+    gap: '20px',
+    marginBottom: '20px',
+    justifyContent: 'center',
+  },
+  gridItem: {
+    width: '30%',
+    height: '300px',
+    flexShrink: 0,
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    padding: '10px',
+    boxSizing: 'border-box',
+    textAlign: 'center',
+  },
+  image: {
+    maxWidth: '100%',
+    maxHeight: '150px',
+    marginBottom: '10px',
+  },
+  deleteButton: {
+    marginTop: '10px',
+    padding: '5px 10px',
+    backgroundColor: '#ff5c5c',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+  },
+  error: {
+    color: 'red',
+  },
+};
