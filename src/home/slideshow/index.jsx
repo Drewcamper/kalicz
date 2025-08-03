@@ -68,7 +68,7 @@ export const Slideshow = () => {
   return (
     <div style={{ ...styles.container, cursor: cursorStyle }}>
       <div style={styles.imageWrapper}>
-        <img src={currentImage?.url} alt={currentImage.name} style={styles.image} />
+        <img src={currentImage?.url} alt={currentImage?.name} style={styles.image} />
         {/* <p style={styles.caption}>{currentImage.name}</p> */}
       </div>
     </div>

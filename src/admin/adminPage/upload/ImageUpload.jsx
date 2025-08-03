@@ -64,10 +64,10 @@ const ImageUpload = ({ onUpload }) => {
         <div style={styles.scrollableContainer}>
           {selectedImages.map((file, index) => (
             <div key={index} style={styles.imageContainer}>
-              <p>{file.name}</p>
+              <p>{file?.name}</p>
               <img
                 src={URL?.createObjectURL(file)}
-                alt={file.name}
+                alt={file?.name}
                 style={{ width: '90%' }}
               />
               {progress[index] || 0}%

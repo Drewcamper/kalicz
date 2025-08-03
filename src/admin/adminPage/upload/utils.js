@@ -49,8 +49,8 @@ export const handleUpload = async ({ file, index, maxOrder, onUpload, setProgres
   const storage = getStorage();
   const order = maxOrder + 1 + index;
 
-  const baseName = file.name.replace(/\.[^/.]+$/, ''); // remove extension
-  const extension = file.name.split('.').pop(); // get extension
+  const baseName = file?.name.replace(/\.[^/.]+$/, ''å); // remove extension
+  const extension = file?.name.split('.').pop(); // get extension
 
   // === Upload Original Image ===
   const originalPath = `images/original/${baseName}.${extension}`;

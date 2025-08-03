@@ -57,7 +57,7 @@ export const createDocument = async (isLoader, documentData) => {
   try {
     const collectionName = getCollectionName(isLoader);
     const docRef = await addDoc(collection(firestore, collectionName), documentData);
-    return docRef.id;
+    return docRef?.id;
   } catch (error) {
     toast.error('Error adding document');
     throw error;
