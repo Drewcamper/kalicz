@@ -49,7 +49,6 @@ export const Slideshow = () => {
   };
 
   useEffect(() => {
-    console.log(images);
     if (images.length > 0) {
       window.addEventListener('keydown', handleKeyDown);
       window.addEventListener('mousemove', handleMouseMove);
@@ -62,7 +61,7 @@ export const Slideshow = () => {
     }
   }, [images]);
 
-  if (images.length === 0) return <p>No images to display</p>;
+  if (images.length > 0) return <p>No images to display</p>;
 
   const currentImage = images[currentIndex];
 

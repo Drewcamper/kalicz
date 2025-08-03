@@ -16,6 +16,7 @@ const firestore = getFirestore();
 
 export const ShowImages = () => {
   const { images, setImages } = useImageContext();
+  console.log({ images });
 
   const [error, setError] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);
@@ -38,7 +39,7 @@ export const ShowImages = () => {
 
   const handleUpdateIndex = async id => {
     try {
-      const updatedImages = images
+      const updatedImages = images.data
         .map(img => (img.id === id ? { ...img, order: newIndex } : img))
         .sort((a, b) => a.order - b.order);
 

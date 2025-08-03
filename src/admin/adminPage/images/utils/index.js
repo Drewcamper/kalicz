@@ -1,4 +1,3 @@
-// utils.js
 import { doc, writeBatch } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 
@@ -6,7 +5,7 @@ export const CHUNK_SIZE = 3;
 
 export const chunkImages = arr => {
   const result = [];
-  for (let i = 0; i < arr.length; i += CHUNK_SIZE) {
+  for (let i = 0; i < arr?.length; i += CHUNK_SIZE) {
     result.push(arr.slice(i, i + CHUNK_SIZE));
   }
   return result;

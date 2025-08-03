@@ -3,34 +3,39 @@ import {
   getFirestore,
   addDoc,
   getDocs,
+  getDoc,
   deleteDoc,
   doc,
   updateDoc,
+  query,
+  where,
 } from 'firebase/firestore';
 import { getStorage, ref, deleteObject } from 'firebase/storage';
 import { toast } from 'react-toastify';
 
 const firestore = getFirestore();
-const collectionName = 'images';
-
-// Create a document in Firestore
-export const createDocument = async data => {
-  try {
-    const docRef = await addDoc(collection(firestore, collectionName), data);
-    toast.success('Document uploaded successfully');
-    return docRef.id;
-  } catch (error) {
-    console.error('Error creating document:', error);
-    toast.error('Error uploading document');
-    throw error;
-  }
+const COLLECTION_NAMES = {
+  LOADERS: 'loader',
+  ORIGINALS: 'original',
 };
 
-// Fetch all documents from the collection
-export const fetchCollection = async () => {
+const getCollectionName = isLoader =>
+  isLoader ? COLLECTION_NAMES.LOADERS : COLLECTION_NAMES.ORIGINALS;
+
+const getStoragePathFromUrl = url => {
+  const match = url.match(/\/o\/(.*?)\?alt=media/);
+  if (match && match[1]) {
+    return decodeURIComponent(match[1]); // returns 'images/original/filename.jpg'
+  }
+  return null;
+};
+
+export const fetchCollection = async isLoader => {
   try {
+    const collectionName = getCollectionName(isLoader);
     const querySnapshot = await getDocs(collection(firestore, collectionName));
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return data;
   } catch (error) {
     console.error('Error fetching collection:', error);
     toast.error('Error fetching collection');
@@ -38,33 +43,71 @@ export const fetchCollection = async () => {
   }
 };
 
-// Delete document and its associated file from Storage
-export const deleteDocument = async (id, url) => {
-  console.log('Deleting document and file:', { id, url });
+export const getOneOriginalImage = async id => {
+  const docRef = doc(firestore, COLLECTION_NAMES.ORIGINALS, id);
+  const docSnap = await getDoc(docRef);
+  if (docSnap.exists()) {
+    return { id: docSnap.id, ...docSnap.data() };
+  } else {
+    throw new Error('Original image not found');
+  }
+};
+
+export const createDocument = async (isLoader, documentData) => {
   try {
-    await deleteDoc(doc(firestore, collectionName, id));
-    if (url) {
-      const storage = getStorage();
-      const fileRef = ref(storage, url);
-      await deleteObject(fileRef);
-    }
-    toast.success('Document and file deleted successfully');
+    const collectionName = getCollectionName(isLoader);
+    const docRef = await addDoc(collection(firestore, collectionName), documentData);
+    return docRef.id;
   } catch (error) {
-    console.error('Error deleting document or file:', error);
-    toast.error('Error deleting document or file');
+    toast.error('Error adding document');
     throw error;
   }
 };
 
-// Update a document
-export const updateDocument = async (id, updates) => {
+export const updateDocument = async (isLoader, documentId, updatedData) => {
   try {
-    const docRef = doc(firestore, collectionName, id);
-    await updateDoc(docRef, updates);
-    toast.success('Document updated successfully');
+    const collectionName = getCollectionName(isLoader);
+
+    const docRef = doc(firestore, collectionName, documentId);
+    await updateDoc(docRef, updatedData);
   } catch (error) {
-    console.error('Error updating document:', error);
     toast.error('Error updating document');
     throw error;
+  }
+};
+
+export const deleteDocument = async (isLoader, documentId, imageUrl) => {
+  try {
+    if (imageUrl) {
+      const storagePath = getStoragePathFromUrl(imageUrl);
+      if (storagePath) {
+        const storage = getStorage();
+        const imageRef = ref(storage, storagePath);
+        await deleteObject(imageRef);
+      }
+    }
+
+    const collectionName = getCollectionName(isLoader);
+    const docRef = doc(firestore, collectionName, documentId);
+    await deleteDoc(docRef);
+
+    if (!isLoader) toast.success('Image deleted successfully');
+  } catch (error) {
+    toast.error('Error deleting image');
+    throw error;
+  }
+};
+
+export const fetchCollectionByOrder = async (order, isLoader) => {
+  try {
+    const collectionName = getCollectionName(isLoader);
+    const q = query(collection(firestore, collectionName), where('order', '==', order));
+
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error fetching by order:', error);
+    toast.error('Error finding linked loader image');
+    return [];
   }
 };

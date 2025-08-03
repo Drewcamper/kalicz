@@ -1,65 +1,53 @@
-import { fetchCollection, deleteDocument, updateDocument } from '../../../../services';
+import {
+  fetchCollection,
+  deleteDocument,
+  updateDocument,
+  getOneOriginalImage,
+  fetchCollectionByOrder,
+} from '../../../../services';
 
-const fetchOriginalImages = async () => {
-  const imagesList = await fetchCollection();
-  const filteredImages = imagesList.filter(
-    image => !image.name.startsWith('LOADER_IMAGE')
-  );
-  filteredImages.sort((a, b) => a.order - b.order);
+// Helper function to get original and its loader pair by originalId
+export const getLinkedImages = async originalId => {
+  const originalImage = await getOneOriginalImage(originalId);
+  const { order } = originalImage;
 
-  return filteredImages;
+  const loaderImages = await fetchCollectionByOrder(order, true);
+  const loaderImage = loaderImages[0] || null;
+
+  return { originalImage, loaderImage };
 };
 
-const fetchLoaderImages = async () => {
-  const imagesList = await fetchCollection();
-  const filteredImages = imagesList.filter(image =>
-    image.name.startsWith('LOADER_IMAGE')
-  );
-  filteredImages.sort((a, b) => a.order - b.order);
-
-  return filteredImages;
+export const fetchImages = async isLoader => {
+  const data = await fetchCollection(isLoader);
+  return data;
 };
 
-export const fetchImages = async (originalImages = true) => {
-  return originalImages ? fetchOriginalImages() : fetchLoaderImages();
+export const updateImageTitle = async (originalId, newTitle) => {
+  const { originalImage, loaderImage } = await getLinkedImages(originalId);
+
+  await updateDocument(false, originalImage.id, { title: newTitle });
+
+  if (loaderImage) {
+    await updateDocument(true, loaderImage.id, { title: newTitle });
+  }
 };
 
-const findMatchingDocs = async id => {
-  const allImages = await fetchCollection();
-  console.log({ id, allImages });
+export const updateImageIndex = async (originalId, newIndex) => {
+  const { originalImage, loaderImage } = await getLinkedImages(originalId);
 
-  const matched = allImages.filter(img => img.id === id);
+  await updateDocument(false, originalImage.id, { order: newIndex });
 
-  const originalDoc = matched.find(img => !img.name.startsWith('LOADER_IMAGE'));
-  const loaderDoc = matched.find(img => img.name.startsWith('LOADER_IMAGE'));
-
-  console.log('Found originalDoc:', originalDoc);
-  console.log('Found loaderDoc:', loaderDoc);
-
-  return {
-    original: originalDoc ? { id: originalDoc.id, url: originalDoc.url } : null,
-    loader: loaderDoc ? { id: loaderDoc.id, url: loaderDoc.url } : null,
-  };
+  if (loaderImage) {
+    await updateDocument(true, loaderImage.id, { order: newIndex });
+  }
 };
 
-export const updateImageTitle = async (id, newTitle) => {
-  const { originalId, loaderId } = await findMatchingDocs(id);
+export const deleteImage = async originalId => {
+  const { originalImage, loaderImage } = await getLinkedImages(originalId);
 
-  if (originalId) await updateDocument(originalId, { title: newTitle });
-  if (loaderId) await updateDocument(loaderId, { title: newTitle });
-};
+  await deleteDocument(false, originalImage.id, originalImage.url);
 
-export const updateImageIndex = async (id, newIndex) => {
-  const { originalId, loaderId } = await findMatchingDocs(id);
-
-  if (originalId) await updateDocument(originalId, { order: newIndex });
-  if (loaderId) await updateDocument(loaderId, { order: newIndex });
-};
-
-export const deleteImage = async id => {
-  console.log(`Deleting images for id: ${id}`);
-  const { original, loader } = await findMatchingDocs(id);
-
-  if (original) await deleteDocument(original.id, original.url);
-  if (loader) await deleteDocument(loader.id, loader.url);
+  if (loaderImage) {
+    await deleteDocument(true, loaderImage.id, loaderImage.url);
+  }
 };

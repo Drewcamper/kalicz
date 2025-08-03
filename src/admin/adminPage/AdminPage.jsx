@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import ImageUpload from './upload/ImageUpload';
@@ -9,12 +8,7 @@ import { toast } from 'react-toastify';
 import { styles } from './styles';
 
 function AdminPage({ onLogout }) {
-  const [refreshKey, setRefreshKey] = useState(0);
   const navigate = useNavigate();
-
-  const handleUpload = () => {
-    setRefreshKey(prevKey => prevKey + 1);
-  };
 
   const handleLogout = async () => {
     const auth = getAuth();
@@ -37,8 +31,8 @@ function AdminPage({ onLogout }) {
         </button>
       </div>
       <div style={styles.content}>
-        <ImageUpload onUpload={handleUpload} />
-        <ShowImages key={refreshKey} />
+        <ImageUpload />
+        <ShowImages />
       </div>
     </div>
   );
