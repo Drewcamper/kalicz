@@ -13,8 +13,8 @@ export const EditImageInfo = ({
 }) => {
   return (
     <div>
-      <input value={image.name}></input>
-      {editingIndex === image.id ? (
+      <input value={image?.name}></input>
+      {editingIndex === image?.id ? (
         <div>
           <input
             type='number'
@@ -28,11 +28,11 @@ export const EditImageInfo = ({
         </div>
       ) : (
         <div>
-          <span>Order: {image.order}</span>
-          <button onClick={() => handleEditIndex(image.id, image.order)}>Edit</button>
+          <span>Order: {image?.order}</span>
+          <button onClick={() => handleEditIndex(image?.id, image?.order)}>Edit</button>
           <button
             style={styles.deleteButton}
-            onClick={() => handleDelete(image.id, image.url)}>
+            onClick={() => handleDelete(image?.id, image?.url)}>
             Delete
           </button>
         </div>

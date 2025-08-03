@@ -23,7 +23,7 @@ const getCollectionName = isLoader =>
   isLoader ? COLLECTION_NAMES.LOADERS : COLLECTION_NAMES.ORIGINALS;
 
 const getStoragePathFromUrl = url => {
-  const match = url.match(/\/o\/(.*?)\?alt=media/);
+  const match = url?.match(/\/o\/(.*?)\?alt=media/);
   if (match && match[1]) {
     return decodeURIComponent(match[1]); // returns 'images/original/filename.jpg'
   }

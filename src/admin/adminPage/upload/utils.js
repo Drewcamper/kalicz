@@ -65,9 +65,9 @@ export const handleUpload = async ({ file, index, maxOrder, onUpload, setProgres
       );
       setProgress(prev => ({ ...prev, [index]: progressPercent }));
     },
-    error => {
-      toast.error('Original upload error');
-    },
+    // error => {
+    //   toast.error('Original upload error');
+    // },
     async () => {
       try {
         const originalURL = await getDownloadURL(originalUploadTask.snapshot.ref);

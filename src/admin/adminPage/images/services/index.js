@@ -45,9 +45,9 @@ export const updateImageIndex = async (originalId, newIndex) => {
 export const deleteImage = async originalId => {
   const { originalImage, loaderImage } = await getLinkedImages(originalId);
 
-  await deleteDocument(false, originalImage.id, originalImage.url);
+  await deleteDocument(false, originalImage.id, originalImage?.url);
 
   if (loaderImage) {
-    await deleteDocument(true, loaderImage.id, loaderImage.url);
+    await deleteDocument(true, loaderImage.id, loaderImage?.url);
   }
 };

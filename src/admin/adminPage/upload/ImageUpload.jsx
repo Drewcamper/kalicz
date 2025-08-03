@@ -66,7 +66,7 @@ const ImageUpload = ({ onUpload }) => {
             <div key={index} style={styles.imageContainer}>
               <p>{file.name}</p>
               <img
-                src={URL.createObjectURL(file)}
+                src={URL?.createObjectURL(file)}
                 alt={file.name}
                 style={{ width: '90%' }}
               />

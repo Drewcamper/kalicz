@@ -108,6 +108,7 @@ export const ImageProvider = ({ children }) => {
         const loaderImages = await fetchImages(true);
         setImages(() => orderImages(loaderImages));
         setLoaderFetched(true); // ✅ Trigger original fetch
+        console.log('Loader images fetched:', loaderImages);
       } catch (error) {
         toast.error(error.message || 'Error loading loader images');
       }
@@ -124,6 +125,7 @@ export const ImageProvider = ({ children }) => {
       try {
         const originalImages = await fetchImages(false);
         setImages(() => orderImages(originalImages));
+        console.log('Original images fetched:', originalImages);
       } catch (error) {
         toast.error(error.message || 'Error loading original images');
       }
