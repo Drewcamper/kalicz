@@ -101,6 +101,16 @@ export const ImageProvider = ({ children }) => {
     return images.sort((a, b) => a.order - b.order);
   };
 
+  const refetchImages = async () => {
+    try {
+      const fetchedImages = await fetchImages(true);
+      setImages(() => orderImages(fetchedImages));
+      console.log('Refetched images:', fetchedImages);
+    } catch (error) {
+      toast.error(error.message || 'Error refetching images');
+    }
+  };
+
   // Step 1: Fetch loader images
   useEffect(() => {
     const loadLoaderImages = async () => {
@@ -135,7 +145,7 @@ export const ImageProvider = ({ children }) => {
   }, [loaderFetched]); // ✅ Triggers only after loader images are fetched
 
   return (
-    <ImageContext.Provider value={{ images, setImages }}>
+    <ImageContext.Provider value={{ images, setImages, refetchImages }}>
       {children}
     </ImageContext.Provider>
   );

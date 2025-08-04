@@ -10,6 +10,8 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
       const image = new Image();
       image.onload = () => {
         try {
+          console.log('[Resize] Image loaded for resizing:', file.name);
+
           const scale = maxWidth / image.width;
           const canvas = document.createElement('canvas');
           canvas.width = maxWidth;
@@ -21,8 +23,10 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
           canvas.toBlob(
             blob => {
               if (blob) {
+                console.log('[Resize] Blob created:', blob.size);
                 resolve(blob);
               } else {
+                console.error('[Resize] Blob creation failed');
                 reject(new Error('Canvas is empty or toBlob failed'));
               }
             },
@@ -30,6 +34,7 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
             quality
           );
         } catch (err) {
+          console.error('[Resize] Error drawing image:', err);
           reject(err);
         }
       };
@@ -43,19 +48,28 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
   });
 };
 
-export const handleUpload = async ({ file, index, maxOrder, onUpload, setProgress }) => {
+export const handleUpload = async ({
+  file,
+  index,
+  maxOrder,
+  onUpload,
+  setProgress,
+  refetch,
+}) => {
   if (!file) return;
 
   const storage = getStorage();
-  const order = maxOrder + 1 + index;
+  const order = maxOrder + index;
+  console.log({ order, maxOrder, index });
 
-  const baseName = file?.name.replace(/\.[^/.]+$/, ''); // remove extension
-  const extension = file?.name.split('.').pop(); // get extension
+  const baseName = file?.name.replace(/\.[^/.]+$/, '');
+  const extension = file?.name.split('.').pop();
 
-  // === Upload Original Image ===
   const originalPath = `images/original/${baseName}.${extension}`;
   const originalRef = ref(storage, originalPath);
   const originalUploadTask = uploadBytesResumable(originalRef, file);
+
+  console.log(`[Upload] Starting original upload for: ${originalPath}`);
 
   originalUploadTask.on(
     'state_changed',
@@ -65,37 +79,49 @@ export const handleUpload = async ({ file, index, maxOrder, onUpload, setProgres
       );
       setProgress(prev => ({ ...prev, [index]: progressPercent }));
     },
-    // error => {
-    //   toast.error('Original upload error');
-    // },
+    error => {
+      console.error('[Upload] Original upload failed:', error);
+      toast.error('Original upload error');
+    },
     async () => {
       try {
         const originalURL = await getDownloadURL(originalUploadTask.snapshot.ref);
+        console.log('[Upload] Original upload successful:', originalURL);
 
         const originalImage = {
           url: originalURL,
           name: `${baseName}.${extension}`,
           order,
         };
+        console.log('[Upload] Creating Firestore doc for original...');
         await createDocument(false, originalImage);
+        console.log('[Upload] Firestore doc created for original image');
 
-        // === Resize and Upload the Image ===
+        // === Resize and Upload ===
+        console.log('[Upload] Resizing image...');
         const resizedBlob = await imageReducer(file, { maxWidth: 480, quality: 0.5 });
+        console.log('[Upload] Image resized, size:', resizedBlob.size);
+
         const resizedPath = `images/loader/${baseName}.${extension}`;
         const resizedRef = ref(storage, resizedPath);
         const resizedUploadTask = await uploadBytesResumable(resizedRef, resizedBlob);
         const resizedURL = await getDownloadURL(resizedUploadTask.ref);
+        console.log('[Upload] Resized upload successful:', resizedURL);
 
         const resizedImage = {
           url: resizedURL,
-          name: `${baseName}.${extension}`, // optional: prefix if needed
+          name: `${baseName}.${extension}`,
           order,
         };
+
+        console.log('[Upload] Creating Firestore doc for resized...');
         await createDocument(true, resizedImage);
+        console.log('[Upload] Firestore doc created for resized image');
 
         onUpload();
+        refetch();
       } catch (error) {
-        console.error('Upload error:', error);
+        console.error('[Upload] Error in upload flow:', error);
         toast.error('Error uploading images');
       }
     }

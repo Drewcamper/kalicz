@@ -11,6 +11,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { getStorage, ref, deleteObject } from 'firebase/storage';
+import { useImageContext } from '../context';
 import { toast } from 'react-toastify';
 
 const firestore = getFirestore();
@@ -57,9 +58,11 @@ export const createDocument = async (isLoader, documentData) => {
   try {
     const collectionName = getCollectionName(isLoader);
     const docRef = await addDoc(collection(firestore, collectionName), documentData);
+    if (docRef && collectionName === COLLECTION_NAMES.ORIGINALS)
+      toast.success('Image uploaded successfully');
     return docRef?.id;
   } catch (error) {
-    toast.error('Error adding document');
+    toast.error('Error adding document: ', error);
     throw error;
   }
 };

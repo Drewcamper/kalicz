@@ -1,5 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { useState } from 'react';
+
 import { Admin } from './admin/Admin';
 import IndexPage from './home/index/IndexPage';
 import { Menu } from './home/menu';
@@ -9,6 +11,12 @@ import Contacts from './home/contacts';
 import { ImageProvider } from './context';
 
 function App() {
+  const [showContact, setShowContact] = useState(false);
+
+  const handleContactClick = () => {
+    setShowContact(prev => !prev);
+  };
+
   return (
     <ImageProvider>
       <Router>
@@ -22,14 +30,14 @@ function App() {
             margin: '0',
             padding: '0',
           }}>
-          <Menu />
+          <Menu onContactClick={handleContactClick} />
           <Routes>
             <Route path='/' element={<Slideshow />} />
             <Route path='/admin' element={<Admin />} />
             <Route path='/index' element={<IndexPage />} />
-            <Route path='/contacts' element={<Contacts />} />
           </Routes>
-        </div>
+        </div>{' '}
+        {showContact && <Contacts handleContactClick={handleContactClick} />}
       </Router>
     </ImageProvider>
   );

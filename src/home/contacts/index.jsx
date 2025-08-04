@@ -1,8 +1,6 @@
-import { Link } from 'react-router-dom';
-
 import { styles } from './styles';
 
-function Contacts() {
+function Contacts({ handleContactClick }) {
   return (
     <div style={styles.contactBox}>
       <div style={styles.contacts}>
@@ -18,9 +16,9 @@ function Contacts() {
 
         <>Budapest, Hungary</>
       </div>
-      <Link to='/' style={styles.close}>
-        Close
-      </Link>
+      <div style={styles.close} onClick={handleContactClick}>
+        <div style={styles.closeText}>Close</div>
+      </div>
     </div>
   );
 }

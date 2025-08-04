@@ -2,28 +2,29 @@ import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { styles } from './styles';
-
+import { fetchCollection } from '../../../services';
 import { handleUpload } from './utils';
 import { useImageContext } from '../../../context/index';
 
 const ImageUpload = ({ onUpload }) => {
-  const { images } = useImageContext();
+  const { images, setImages } = useImageContext();
 
   const [selectedImages, setSelectedImages] = useState([]);
   const [progress, setProgress] = useState({});
-  const [maxOrder, setMaxOrder] = useState(0);
-  const [uploadCount, setUploadCount] = useState(0); // 🔁 Track completed uploads
+  const [maxOrder, setMaxOrder] = useState(images.length || 0);
   useEffect(() => {
     const loadMaxOrder = async () => {
-      const maxOrderNumber = images.length
-        ? Math.max(...images.map(img => img.order ?? 0))
-        : 0;
+      const maxOrderNumber = images.length;
       setMaxOrder(maxOrderNumber);
     };
     loadMaxOrder();
-  }, [uploadCount]); // 🔁 Re-run when an upload finishes
+  }, [images]); // 🔁 Re-run when an upload finishes
 
-  const handleDrop = (acceptedFiles, rejectedFiles) => {
+  const refetch = async () => {
+    const newImgaes = await fetchCollection(false);
+    setImages(newImgaes);
+  };
+  const handleDrop = async (acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) {
       toast('Only image and video files are allowed.');
       return;
@@ -31,16 +32,17 @@ const ImageUpload = ({ onUpload }) => {
 
     if (acceptedFiles.length > 0) {
       setSelectedImages(acceptedFiles);
+
       acceptedFiles.forEach((file, index) => {
         handleUpload({
           file,
           index,
-          maxOrder: maxOrder + index,
+          maxOrder,
           onUpload: () => {
-            setUploadCount(prev => prev + 1); // ✅ trigger re-fetch
-            onUpload?.(); // optional callback from parent
+            onUpload?.();
           },
           setProgress,
+          refetch,
         });
       });
     }
