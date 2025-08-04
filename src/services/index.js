@@ -67,7 +67,6 @@ export const createDocument = async (isLoader, documentData) => {
 };
 
 export const updateDocument = async (isLoader, documentId, updatedData) => {
-  console.log({ isLoader, documentId, updatedData });
   try {
     const collectionName = getCollectionName(isLoader);
 

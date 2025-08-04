@@ -48,10 +48,16 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
   });
 };
 
+export const getMaxOrder = images => {
+  if (!images || images.length === 0) return 0;
+  return Math.max(...images.map(img => img.order));
+};
+
 export const handleUpload = async ({
   file,
   index,
-  maxOrder,
+  // maxOrder,
+  images,
   onUpload,
   setProgress,
   refetch,
@@ -59,7 +65,8 @@ export const handleUpload = async ({
   if (!file) return;
 
   const storage = getStorage();
-  const order = maxOrder + index;
+  const maxOrder = getMaxOrder(images);
+  const order = maxOrder + index + 1;
   console.log({ order, maxOrder, index });
 
   const baseName = file?.name.replace(/\.[^/.]+$/, '');

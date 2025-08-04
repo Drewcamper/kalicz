@@ -23,9 +23,6 @@ function AdminPage({ onLogout }) {
   return (
     <div style={styles.container}>
       <div style={styles.buttons}>
-        <button onClick={() => navigate('/')} style={styles.homeButton}>
-          Home
-        </button>
         <button onClick={handleLogout} style={styles.logoutButton}>
           Logout
         </button>

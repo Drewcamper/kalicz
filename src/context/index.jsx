@@ -16,7 +16,6 @@ export const ImageProvider = ({ children }) => {
     try {
       const fetchedImages = await fetchImages(true);
       setImages(() => orderImages(fetchedImages));
-      console.log('Refetched images:', fetchedImages);
     } catch (error) {
       toast.error(error.message || 'Error refetching images');
     }

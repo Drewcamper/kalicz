@@ -1,5 +1,6 @@
 import { doc, writeBatch } from 'firebase/firestore';
 import { toast } from 'react-toastify';
+import { getLinkedImages } from '../services';
 
 export const CHUNK_SIZE = 3;
 
@@ -16,43 +17,54 @@ export const handleOnDragEnd = async params => {
   const { source, destination } = result;
 
   if (!destination) return;
-
-  const imagesMatrix = chunkImages(images);
-
-  const sourceRowIndex = parseInt(source.droppableId.split('-')[1]);
-  const destinationRowIndex = parseInt(destination.droppableId.split('-')[1]);
-
-  const sourceRow = Array.from(imagesMatrix[sourceRowIndex]);
-  const destRow = Array.from(imagesMatrix[destinationRowIndex]);
-
-  const [movedImage] = sourceRow.splice(source.index, 1);
-
-  if (sourceRowIndex === destinationRowIndex) {
-    sourceRow.splice(destination.index, 0, movedImage);
-    imagesMatrix[sourceRowIndex] = sourceRow;
-  } else {
-    destRow.splice(destination.index, 0, movedImage);
-    imagesMatrix[sourceRowIndex] = sourceRow;
-    imagesMatrix[destinationRowIndex] = destRow;
-  }
-
-  const newImageList = imagesMatrix.flat().map((img, idx) => ({
-    ...img,
-    order: idx + 1,
-  }));
-  console.log({ newImageList });
-
-  setImages(newImageList);
+  if (
+    source.droppableId === destination.droppableId &&
+    source.index === destination.index
+  )
+    return;
 
   try {
+    // Create a copy of the current images
+    const updatedImages = [...images];
+    // Remove the dragged item
+    const [movedImage] = updatedImages.splice(source.index, 1);
+    // Insert it at the new position
+    updatedImages.splice(destination.index, 0, movedImage);
+
+    // Reassign order numbers sequentially
+    const reorderedImages = updatedImages.map((img, index) => ({
+      ...img,
+      order: index + 1,
+    }));
+
+    // Optimistically update local state
+    setImages(reorderedImages);
+
+    // Prepare batch update for Firestore
     const batch = writeBatch(firestore);
-    newImageList.forEach(image => {
-      const imageRef = doc(firestore, 'images', image.id);
-      batch.update(imageRef, { order: image.order });
-    });
+
+    // Update all images to maintain consistency
+    for (const img of reorderedImages) {
+      const { originalImage, loaderImage } = await getLinkedImages(img.id);
+
+      if (originalImage) {
+        const originalRef = doc(firestore, 'original', originalImage.id);
+        batch.update(originalRef, { order: img.order });
+      }
+
+      if (loaderImage) {
+        const loaderRef = doc(firestore, 'loader', loaderImage.id);
+        batch.update(loaderRef, { order: img.order });
+      }
+    }
+
     await batch.commit();
+    toast.success('Order updated successfully');
   } catch (error) {
-    toast.error(`Error updating image order: ${error.message}`);
+    console.error('Drag and drop error:', error);
+    toast.error('Failed to update order');
     setError(error.message);
+    // Revert local state if Firestore update fails
+    setImages(images);
   }
 };
