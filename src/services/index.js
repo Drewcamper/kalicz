@@ -11,7 +11,6 @@ import {
   where,
 } from 'firebase/firestore';
 import { getStorage, ref, deleteObject } from 'firebase/storage';
-import { useImageContext } from '../context';
 import { toast } from 'react-toastify';
 
 const firestore = getFirestore();
@@ -68,6 +67,7 @@ export const createDocument = async (isLoader, documentData) => {
 };
 
 export const updateDocument = async (isLoader, documentId, updatedData) => {
+  console.log({ isLoader, documentId, updatedData });
   try {
     const collectionName = getCollectionName(isLoader);
 

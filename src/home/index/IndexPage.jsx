@@ -2,7 +2,6 @@ import { useImageContext } from '../../context';
 
 function IndexPage() {
   const { images } = useImageContext();
-  console.log('Images in IndexPage:', images);
 
   return (
     <div style={{ height: '95vh', overflowY: 'scroll', marginBottom: '160px' }}>

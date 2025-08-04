@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import { ImageItem } from './imageItem';
 import { deleteImage } from './services';
 import { chunkImages, handleOnDragEnd } from './utils';
+import { getLinkedImages, updateImageTitle } from './services';
 
 import { useImageContext } from '../../../context';
 
@@ -16,7 +17,6 @@ const firestore = getFirestore();
 
 export const ShowImages = () => {
   const { images, setImages } = useImageContext();
-  console.log({ images });
 
   const [error, setError] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);
@@ -33,41 +33,109 @@ export const ShowImages = () => {
   };
 
   const handleEditIndex = (id, currentIndex) => {
+    console.log({ id, currentIndex });
     setEditingIndex(id);
     setNewIndex(currentIndex);
   };
 
   const handleUpdateIndex = async id => {
     try {
-      const updatedImages = images.data
-        .map(img => (img.id === id ? { ...img, order: newIndex } : img))
-        .sort((a, b) => a.order - b.order);
+      // Adjust newIndex if it's higher than the total number of images
+      const adjustedNewIndex = Math.min(newIndex, images.length);
 
-      const reorderedImages = updatedImages.map((image, index) => ({
-        ...image,
+      // If the user entered a higher number, update the input field to show the adjusted value
+      if (newIndex !== adjustedNewIndex) {
+        setNewIndex(adjustedNewIndex);
+        toast.info(`Position adjusted to ${adjustedNewIndex}`);
+      }
+
+      // Create updated images array with new order
+      const updatedImages = [...images];
+      const imageToUpdate = updatedImages.find(img => img.id === id);
+
+      if (!imageToUpdate) return;
+
+      // Swap orders
+      const oldIndex = imageToUpdate.order;
+      const otherImage = updatedImages.find(img => img.order === adjustedNewIndex);
+
+      if (otherImage) {
+        otherImage.order = oldIndex;
+      }
+      imageToUpdate.order = adjustedNewIndex;
+
+      // Sort by new order
+      updatedImages.sort((a, b) => a.order - b.order);
+
+      // Reassign orders sequentially to fix any gaps
+      const reorderedImages = updatedImages.map((img, index) => ({
+        ...img,
         order: index + 1,
       }));
 
+      // Update state
       setImages(reorderedImages);
 
+      // Prepare batch update
       const batch = writeBatch(firestore);
-      reorderedImages.forEach(image => {
-        const imageRef = doc(firestore, 'images', image.id);
-        batch.update(imageRef, { order: image.order });
-      });
+
+      // First update the moved image and its counterpart
+      const { originalImage, loaderImage } = await getLinkedImages(id);
+
+      if (originalImage) {
+        const originalRef = doc(firestore, 'original', originalImage.id);
+        batch.update(originalRef, { order: imageToUpdate.order });
+      }
+
+      if (loaderImage) {
+        const loaderRef = doc(firestore, 'loader', loaderImage.id);
+        batch.update(loaderRef, { order: imageToUpdate.order });
+      }
+
+      // Then update the swapped image (if any) and its counterpart
+      if (otherImage) {
+        const otherLinked = await getLinkedImages(otherImage.id);
+
+        if (otherLinked.originalImage) {
+          const otherOriginalRef = doc(
+            firestore,
+            'original',
+            otherLinked.originalImage.id
+          );
+          batch.update(otherOriginalRef, { order: otherImage.order });
+        }
+
+        if (otherLinked.loaderImage) {
+          const otherLoaderRef = doc(firestore, 'loader', otherLinked.loaderImage.id);
+          batch.update(otherLoaderRef, { order: otherImage.order });
+        }
+      }
 
       await batch.commit();
       setEditingIndex(null);
       setNewIndex(null);
+      toast.success('Order updated successfully');
     } catch (error) {
-      toast('Error updating image order:', error);
-      setError(error.message);
+      toast.error(`Error updating order: ${error.message}`);
+      console.error('Error updating order:', error);
     }
   };
-
   const handleCancelEdit = () => {
     setEditingIndex(null);
     setNewIndex(null);
+  };
+
+  const handleUpdateName = async (id, newName) => {
+    try {
+      await updateImageTitle(id, newName);
+      setImages(prev =>
+        prev.map(img => (img.id === id ? { ...img, name: newName } : img))
+      );
+      toast.success('Name updated successfully');
+    } catch (error) {
+      toast.error(`Error updating name: ${error.message}`);
+      console.error('Error updating name:', error);
+    }
   };
 
   const imagesMatrix = chunkImages(images);
@@ -116,6 +184,7 @@ export const ShowImages = () => {
                           handleCancelIndex={handleCancelEdit}
                           handleEditIndex={handleEditIndex}
                           handleDelete={handleDelete}
+                          handleUpdateName={handleUpdateName}
                         />
                       </div>
                     )}

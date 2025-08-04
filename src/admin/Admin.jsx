@@ -3,8 +3,6 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import SignIn from './login/SignIn';
 import AdminPage from './adminPage/AdminPage';
 
-// import { ImageProvider } from '../context';
-
 export const Admin = () => {
   const [isAuthorized, setIsAuthorized] = useState(false);
 

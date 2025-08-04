@@ -1,7 +1,6 @@
 import { styles } from './styles';
 
 function DisplayImage({ image }) {
-  console.log('DisplayImage component rendered with image:', image);
   return (
     <img
       src={image?.url}

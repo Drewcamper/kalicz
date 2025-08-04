@@ -11,6 +11,7 @@ export const ImageItem = ({
   handleCancelEdit,
   handleEditIndex,
   handleDelete,
+  handleUpdateName,
 }) => {
   return (
     <>
@@ -25,6 +26,7 @@ export const ImageItem = ({
         handleCancelIndex={handleCancelEdit}
         handleEditIndex={handleEditIndex}
         handleDelete={handleDelete}
+        handleUpdateName={handleUpdateName}
       />
     </>
   );

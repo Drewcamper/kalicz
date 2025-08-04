@@ -40,6 +40,7 @@ export const handleOnDragEnd = async params => {
     ...img,
     order: idx + 1,
   }));
+  console.log({ newImageList });
 
   setImages(newImageList);
 

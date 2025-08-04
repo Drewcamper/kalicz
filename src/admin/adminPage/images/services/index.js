@@ -24,11 +24,12 @@ export const fetchImages = async isLoader => {
 
 export const updateImageTitle = async (originalId, newTitle) => {
   const { originalImage, loaderImage } = await getLinkedImages(originalId);
+  console.log({ originalImage, loaderImage });
 
-  await updateDocument(false, originalImage.id, { title: newTitle });
+  await updateDocument(false, originalImage.id, { name: newTitle });
 
   if (loaderImage) {
-    await updateDocument(true, loaderImage.id, { title: newTitle });
+    await updateDocument(true, loaderImage.id, { name: newTitle });
   }
 };
 
