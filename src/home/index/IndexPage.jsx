@@ -5,7 +5,7 @@ function IndexPage() {
   console.log('Images in IndexPage:', images);
 
   return (
-    <div style={{ height: '100vh', overflowY: 'scroll' }}>
+    <div style={{ height: '95vh', overflowY: 'scroll', marginBottom: '160px' }}>
       {images?.map(image => {
         return (
           <img
@@ -13,7 +13,7 @@ function IndexPage() {
             src={image?.url}
             alt={image?.name}
             style={{
-              height: '90vh',
+              height: '100%',
               padding: '8px',
               transition: 'filter 0.3s ease',
             }}

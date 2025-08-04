@@ -135,7 +135,7 @@ export const Slideshow = () => {
     };
   }, [images]);
 
-  if (images.length < 1) return <p>No images to display</p>;
+  if (images.length < 1) return <p>Loading...</p>;
 
   const currentImage = images[currentIndex];
 

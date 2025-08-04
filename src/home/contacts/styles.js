@@ -1,38 +1,51 @@
 export const styles = {
   contactBox: {
-    // width: '360px',
-    height: 'calc(100vh - 36px)',
+    height: '100vh',
     display: 'flex',
-    position: 'relative',
+    position: 'fixed',
     top: 0,
     left: 0,
     zIndex: 100,
     width: 'calc(100vw - 16px)',
-    // height: '100vh',
     backgroundColor: 'rgba(255,255,255,0.8)',
-    margin: '32px 8px',
   },
-  contacts: {
+
+  whiteBg: {
+    padding: '8px 0px',
     width: '360px',
+    height: 'auto',
+    backgroundColor: 'white',
+  },
+
+  contacts: {
+    height: '100%',
     border: '1px solid black',
     boxSizing: 'border-box',
-    padding: '12px',
-    // marginRight: '12px',
+    padding: '16px 10px',
     display: 'flex',
     flexDirection: 'column',
-    gap: '8px',
     textAlign: 'left',
   },
+
+  introduction: {
+    marginBottom: '24px',
+  },
+  refers: {
+    display: 'flex',
+    flexDirection: 'column',
+    marginBottom: '36px',
+  },
+
   close: {
     cursor: 'pointer',
     textDecoration: 'none',
     height: '100%',
     width: 'calc(100% - 360px)',
+    marginTop: '8px',
   },
 
   closeText: {
     position: 'relative',
     width: '50px',
-    margin: '8px 0px 0px 8px',
   },
 };
