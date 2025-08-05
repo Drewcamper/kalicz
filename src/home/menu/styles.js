@@ -9,4 +9,10 @@ export const styles = {
     textDecoration: 'none',
     color: 'black',
   },
+  linkFont: {
+    marginRight: '18px',
+    textDecoration: 'none',
+    color: 'black',
+    fontFamily: 'timesNewRoman',
+  },
 };

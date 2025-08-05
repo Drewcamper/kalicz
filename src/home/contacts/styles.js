@@ -47,5 +47,6 @@ export const styles = {
   closeText: {
     position: 'relative',
     width: '50px',
+    fontFamily: 'timesNewRoman',
   },
 };

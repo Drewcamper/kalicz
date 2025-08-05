@@ -6,13 +6,13 @@ export const Menu = ({ onContactClick }) => {
       <a href='/' style={styles.link}>
         Máté Kalicz
       </a>
-      <a href='/index' style={styles.link}>
+      <a href='/index' style={styles.linkFont}>
         index
       </a>
       <a
         onClick={onContactClick}
         style={{
-          ...styles.link,
+          ...styles.linkFont,
           background: 'none',
           border: 'none',
           cursor: 'pointer',

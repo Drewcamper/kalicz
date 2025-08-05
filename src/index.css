@@ -1,5 +1,5 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: helvetica;
   line-height: 1.5;
   font-weight: 400;
 
@@ -11,6 +11,16 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@font-face {
+  font-family: 'helvetica';
+  src: url('/fonts/Helvetica.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'timesNewRoman';
+  src: url('/fonts/TimesNewRoman.otf') format('opentype');
 }
 
 a {
