@@ -9,7 +9,7 @@ export const Menu = ({ onContactClick }) => {
       <a href='/index' style={styles.link}>
         index
       </a>
-      <button
+      <a
         onClick={onContactClick}
         style={{
           ...styles.link,
@@ -19,7 +19,7 @@ export const Menu = ({ onContactClick }) => {
           padding: 0,
         }}>
         Contact
-      </button>
+      </a>
     </div>
   );
 };

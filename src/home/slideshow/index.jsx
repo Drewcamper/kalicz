@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useImageContext } from '../../context';
+import { ImageComponent } from '../image/ImageComponent';
 import { styles } from './styles';
 
 export const Slideshow = () => {
@@ -66,7 +67,7 @@ export const Slideshow = () => {
       style={{ ...styles.container, cursor: cursorStyle }}
       onMouseMove={handleMouseMove}
       onClick={handleClick}>
-      <img src={currentImage?.url} alt={currentImage?.name} style={styles.image} />
+      <ImageComponent image={currentImage} style={styles.image} />
     </div>
   );
 };

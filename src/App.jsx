@@ -36,7 +36,7 @@ function App() {
             <Route path='/admin' element={<Admin />} />
             <Route path='/index' element={<IndexPage />} />
           </Routes>
-        </div>{' '}
+        </div>
         {showContact && <Contacts handleContactClick={handleContactClick} />}
       </Router>
     </ImageProvider>

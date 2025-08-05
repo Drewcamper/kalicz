@@ -12,7 +12,7 @@ export const styles = {
   },
   image: {
     // maxWidth: '90vw',
-    maxHeight: 'calc(100% - 112px - 18px)',
+    height: 'calc(100% - 112px - 18px)',
     // height: 'fit-content',
     objectFit: 'contain',
   },
