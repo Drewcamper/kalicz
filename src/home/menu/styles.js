@@ -1,10 +1,12 @@
 export const styles = {
   container: {
     display: 'flex',
-    padding: '6px',
+    margin: '9px 0px 0px 12px',
+    height: '3vh',
   },
   link: {
     marginRight: '18px',
     textDecoration: 'none',
+    color: 'black',
   },
 };

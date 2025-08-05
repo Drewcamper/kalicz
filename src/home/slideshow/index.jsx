@@ -58,8 +58,6 @@ export const Slideshow = () => {
     };
   }, [images]);
 
-  if (images.length < 1) return <p>Loading...</p>;
-
   const currentImage = images[currentIndex];
 
   return (
@@ -68,9 +66,7 @@ export const Slideshow = () => {
       style={{ ...styles.container, cursor: cursorStyle }}
       onMouseMove={handleMouseMove}
       onClick={handleClick}>
-      <div style={styles.imageWrapper}>
-        <img src={currentImage?.url} alt={currentImage?.name} style={styles.image} />
-      </div>
+      <img src={currentImage?.url} alt={currentImage?.name} style={styles.image} />
     </div>
   );
 };

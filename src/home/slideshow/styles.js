@@ -1,25 +1,19 @@
 export const styles = {
   container: {
-    width: '100vw',
-    height: '100vh',
+    width: 'auto',
+    height: '97vh',
     overflow: 'hidden',
-    backgroundColor: 'transparent',
+    // backgroundColor: 'transparent',
+    // backgroundColor: 'blue',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
-  imageWrapper: {
-    textAlign: 'center',
-  },
   image: {
-    maxWidth: '90vw',
-    maxHeight: '80vh',
+    // maxWidth: '90vw',
+    maxHeight: 'calc(100% - 112px - 18px)',
+    // height: 'fit-content',
     objectFit: 'contain',
-  },
-  caption: {
-    color: 'black',
-    marginTop: '10px',
-    fontSize: '1rem',
   },
 };
