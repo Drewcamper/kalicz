@@ -1,0 +1,13 @@
+@media (max-width: 450px) {
+  .whiteBg {
+    width: 80vw !important;
+  }
+
+  .contacts {
+    width: 80vw !important;
+  }
+
+  .close {
+    width: '20vw';
+  }
+}

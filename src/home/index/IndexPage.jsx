@@ -5,15 +5,27 @@ function IndexPage() {
   const { images } = useImageContext();
   const style = {
     // height: '100%',
+    // // height: 'calc(100%)',
+    // width: 'auto',
+    // transition: 'filter 0.3s ease',
+    // margin: '0 10vw',
     height: 'calc(100% - 112px - 18px)',
-    width: 'auto',
-    // padding: '8px',
-    transition: 'filter 0.3s ease',
-    // margin: '5vh 20% 5vh 20%',
-    margin: '0 10vw',
+    // height: 'fit-content',
+    objectFit: 'contain',
   };
   return (
-    <div style={{ height: '97vh', overflowY: 'scroll' }}>
+    <div
+      style={{
+        // width: 'auto',
+        padding: '0 20vw',
+        height: '97vh',
+        // overflow: 'hidden',
+        // display: 'flex',
+        // justifyContent: 'center',
+        // alignItems: 'center',
+        // position: 'relative',
+        overflowY: 'scroll',
+      }}>
       {images?.map(image => {
         return <ImageComponent image={image} style={style} />;
       })}

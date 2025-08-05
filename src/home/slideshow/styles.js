@@ -3,8 +3,6 @@ export const styles = {
     width: 'auto',
     height: '97vh',
     overflow: 'hidden',
-    // backgroundColor: 'transparent',
-    // backgroundColor: 'blue',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',

@@ -1,8 +1,8 @@
 export const styles = {
   container: {
     display: 'flex',
-    margin: '9px 0px 0px 12px',
-    height: '3vh',
+    margin: '9px 12px',
+    alignItems: 'center',
   },
   link: {
     marginRight: '18px',

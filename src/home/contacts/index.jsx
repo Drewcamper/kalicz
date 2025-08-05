@@ -1,10 +1,13 @@
+
+
+import './responsive.css';
 import { styles } from './styles';
 
 function Contacts({ handleContactClick }) {
   return (
     <div style={styles.contactBox}>
-      <div style={styles.whiteBg}>
-        <div style={styles.contacts}>
+      <div style={styles.whiteBg} className='whiteBg'>
+        <div style={styles.contacts} className='contacts'>
           <div style={styles.introduction}>
             Máté is a visual artist based in Budapest Hungary. He intrested in combine
             applied work with personal intrest and creating visual identity.
@@ -19,7 +22,7 @@ function Contacts({ handleContactClick }) {
           <>Budapest, Hungary</>
         </div>
       </div>
-      <div style={styles.close} onClick={handleContactClick}>
+      <div style={styles.close} className='close' onClick={handleContactClick}>
         <div style={styles.closeText}>Close</div>
       </div>
     </div>

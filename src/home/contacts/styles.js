@@ -12,13 +12,17 @@ export const styles = {
 
   whiteBg: {
     padding: '8px 0px',
-    width: '360px',
+    width: '100%',
+    maxWidth: '360px',
     height: 'auto',
     backgroundColor: 'white',
+    boxSizing: 'border-box',
   },
 
   contacts: {
     height: '100%',
+    width: '100%',
+    backgroundColor: 'white',
     border: '1px solid black',
     boxSizing: 'border-box',
     padding: '16px 10px',
