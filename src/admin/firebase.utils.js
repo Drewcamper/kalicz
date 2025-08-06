@@ -10,7 +10,7 @@ const firebaseConfig = {
   storageBucket: 'kalicz-d9692.appspot.com',
   messagingSenderId: '650454744169',
   appId: '1:650454744169:web:bb690eaab0206159a0b6f8',
-  measurementId: 'G-8Z3DTS5PGX"',
+  measurementId: 'G-8Z3DTS5PGX',
 };
 
 const firebaseApp = initializeApp(firebaseConfig);
@@ -18,7 +18,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 const provider = new GoogleAuthProvider();
 
 provider.setCustomParameters({
-  prompt: 'select_account ',
+  prompt: 'select_account',
 });
 export const auth = getAuth();
 export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
