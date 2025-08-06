@@ -1,5 +1,4 @@
 :root {
-  font-family: helvetica;
   line-height: 1.5;
   font-weight: 400;
   background-color: white;
@@ -12,12 +11,12 @@
 
 @font-face {
   font-family: 'helvetica';
-  src: url('/fonts/otf/Helvetica-52.otf') format('opentype');
+  src: url('/fonts/woff2/Helvetica-52.woff2');
 }
 
 @font-face {
   font-family: 'timesNewRoman';
-  src: url('/fonts/otf/Helvetica-52.otf') format('opentype');
+  src: url('/fonts/woff2/TimesNewRomanMT-CondItalic.woff2');
 }
 
 a {
