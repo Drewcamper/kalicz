@@ -5,11 +5,13 @@ export const styles = {
     alignItems: 'center',
   },
   link: {
+    margin: '4px',
     marginRight: '18px',
     textDecoration: 'none',
     color: 'black',
   },
   linkFont: {
+    margin: '4px',
     marginRight: '18px',
     textDecoration: 'none',
     color: 'black',

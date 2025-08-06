@@ -2,7 +2,6 @@
   font-family: helvetica;
   line-height: 1.5;
   font-weight: 400;
-  color: rgba(255, 255, 255, 1);
   background-color: white;
 
   font-synthesis: none;
@@ -13,12 +12,12 @@
 
 @font-face {
   font-family: 'helvetica';
-  src: url('/fonts/Helvetica.otf') format('opentype');
+  src: url('/fonts/otf/Helvetica-52.otf') format('opentype');
 }
 
 @font-face {
   font-family: 'timesNewRoman';
-  src: url('/fonts/TimesNewRoman.otf') format('opentype');
+  src: url('/fonts/otf/Helvetica-52.otf') format('opentype');
 }
 
 a {
@@ -49,8 +48,4 @@ button {
 }
 button:hover {
   border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
