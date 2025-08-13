@@ -1,24 +1,25 @@
-import { styles } from './styles';
+// import { styles } from './styles';
+import './styles.css';
 
 export const Menu = ({ onContactClick }) => {
   return (
-    <div style={styles.container}>
-      <a href='/' style={styles.link}>
+    <div className='container'>
+      <a href='/' className='link'>
         Máté Kalicz
       </a>
-      <a href='/index' style={styles.linkFont}>
-        index
+      <a href='/index' className='link'>
+        Index
       </a>
       <a
         onClick={onContactClick}
         style={{
-          ...styles.linkFont,
           background: 'none',
           border: 'none',
           cursor: 'pointer',
           padding: 0,
-        }}>
-        Contact
+        }}
+        className='link'>
+        Information
       </a>
     </div>
   );

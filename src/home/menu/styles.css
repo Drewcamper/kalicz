@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  margin: 9px 12px;
+  align-items: center;
+}
+.link {
+  margin: 4px;
+  margin-right: 128px;
+  text-decoration: none;
+  color: black;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;   
+}
+
+@media (max-width: 450px) {
+  .link {
+    margin-right: 64px;
+  }
+}

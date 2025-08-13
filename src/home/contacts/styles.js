@@ -24,7 +24,7 @@ export const styles = {
     height: '100%',
     width: '100%',
     backgroundColor: 'white',
-    border: '1px solid black',
+    border: '1px solid rgba(0, 0, 0, .1)',
     boxSizing: 'border-box',
     padding: '16px 10px',
     display: 'flex',
@@ -53,5 +53,7 @@ export const styles = {
     position: 'relative',
     width: '50px',
     fontFamily: 'timesNewRoman',
+    // backgroundColor: 'white',
+    // padding: '0px 80px',
   },
 };

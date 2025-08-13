@@ -7,11 +7,10 @@ export const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    margin: '0 5vw',
   },
   image: {
-    // maxWidth: '90vw',
     height: 'calc(100% - 112px - 18px)',
-    // height: 'fit-content',
     objectFit: 'contain',
   },
 };

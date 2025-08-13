@@ -1,8 +1,5 @@
 :root {
-  line-height: 1.5;
-  font-weight: 400;
   background-color: white;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -11,6 +8,8 @@
 
 @font-face {
   font-family: 'helvetica';
+  font-size: 11;
+  font-style: normal;
   src: url('/fonts/woff2/Helvetica-52.woff2');
 }
 
@@ -20,12 +19,8 @@
 }
 
 a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  text-decoration: none;
+  all: unset;
 }
 
 body {

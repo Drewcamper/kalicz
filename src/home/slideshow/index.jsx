@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useImageContext } from '../../context';
 import { ImageComponent } from '../image/ImageComponent';
 import { styles } from './styles';
+import './slideshow.css';
 
 export const Slideshow = () => {
   const { images } = useImageContext();
@@ -22,7 +23,7 @@ export const Slideshow = () => {
     const rect = containerRef.current.getBoundingClientRect();
     const relativeX = e.clientX - rect.left;
 
-    const cursorText = relativeX < rect.width / 2 ? 'Prev' : 'Next';
+    const cursorText = relativeX < rect.width / 2 ? '&#8592;' : '&#8594;';
     const cursorSVG = `
       data:image/svg+xml;base64,${btoa(`
         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
@@ -32,6 +33,7 @@ export const Slideshow = () => {
         </svg>
       `)}
     `;
+
     setCursorStyle(`url(${cursorSVG}), auto`);
   };
 
@@ -65,6 +67,7 @@ export const Slideshow = () => {
     <div
       ref={containerRef}
       style={{ ...styles.container, cursor: cursorStyle }}
+      className='slideshow-container'
       onMouseMove={handleMouseMove}
       onClick={handleClick}>
       <ImageComponent image={currentImage} style={styles.image} />

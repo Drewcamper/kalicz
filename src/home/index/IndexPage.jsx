@@ -3,32 +3,30 @@ import { ImageComponent } from '../image/ImageComponent';
 
 function IndexPage() {
   const { images } = useImageContext();
-  const style = {
-    // height: '100%',
-    // // height: 'calc(100%)',
-    // width: 'auto',
-    // transition: 'filter 0.3s ease',
-    // margin: '0 10vw',
-    height: 'calc(100% - 112px - 18px)',
-    // height: 'fit-content',
-    objectFit: 'contain',
-  };
+
   return (
     <div
       style={{
-        // width: 'auto',
-        padding: '0 20vw',
-        height: '97vh',
-        // overflow: 'hidden',
-        // display: 'flex',
-        // justifyContent: 'center',
-        // alignItems: 'center',
-        // position: 'relative',
-        overflowY: 'scroll',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+        gap: '10px',
+        padding: '20px',
+        height: 'auto',
+        overflowY: 'auto',
+        alignItems: 'start',
       }}>
-      {images?.map(image => {
-        return <ImageComponent image={image} style={style} />;
-      })}
+      {images?.map((image, index) => (
+        <ImageComponent
+          key={index}
+          image={image}
+          style={{
+            width: '100%',
+            height: 'auto',
+            objectFit: 'contain',
+            display: 'block',
+          }}
+        />
+      ))}
     </div>
   );
 }

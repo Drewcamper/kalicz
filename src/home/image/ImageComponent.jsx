@@ -1,3 +1,4 @@
+import './styles.css';
 export const ImageComponent = ({ image, style }) => {
   return (
     <img
@@ -6,6 +7,7 @@ export const ImageComponent = ({ image, style }) => {
       style={{
         ...style,
       }}
+      className='image-component'
     />
   );
 };
