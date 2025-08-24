@@ -10,8 +10,6 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
       const image = new Image();
       image.onload = () => {
         try {
-          console.log('[Resize] Image loaded for resizing:', file.name);
-
           const scale = maxWidth / image.width;
           const canvas = document.createElement('canvas');
           canvas.width = maxWidth;
@@ -23,7 +21,6 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
           canvas.toBlob(
             blob => {
               if (blob) {
-                console.log('[Resize] Blob created:', blob.size);
                 resolve(blob);
               } else {
                 console.error('[Resize] Blob creation failed');
@@ -67,7 +64,6 @@ export const handleUpload = async ({
   const storage = getStorage();
   const maxOrder = getMaxOrder(images);
   const order = maxOrder + index + 1;
-  console.log({ order, maxOrder, index });
 
   const baseName = file?.name.replace(/\.[^/.]+$/, '');
   const extension = file?.name.split('.').pop();
@@ -75,8 +71,6 @@ export const handleUpload = async ({
   const originalPath = `images/original/${baseName}.${extension}`;
   const originalRef = ref(storage, originalPath);
   const originalUploadTask = uploadBytesResumable(originalRef, file);
-
-  console.log(`[Upload] Starting original upload for: ${originalPath}`);
 
   originalUploadTask.on(
     'state_changed',
@@ -93,27 +87,22 @@ export const handleUpload = async ({
     async () => {
       try {
         const originalURL = await getDownloadURL(originalUploadTask.snapshot.ref);
-        console.log('[Upload] Original upload successful:', originalURL);
 
         const originalImage = {
           url: originalURL,
           name: `${baseName}.${extension}`,
           order,
         };
-        console.log('[Upload] Creating Firestore doc for original...');
         await createDocument(false, originalImage);
-        console.log('[Upload] Firestore doc created for original image');
 
         // === Resize and Upload ===
-        console.log('[Upload] Resizing image...');
+
         const resizedBlob = await imageReducer(file, { maxWidth: 480, quality: 0.5 });
-        console.log('[Upload] Image resized, size:', resizedBlob.size);
 
         const resizedPath = `images/loader/${baseName}.${extension}`;
         const resizedRef = ref(storage, resizedPath);
         const resizedUploadTask = await uploadBytesResumable(resizedRef, resizedBlob);
         const resizedURL = await getDownloadURL(resizedUploadTask.ref);
-        console.log('[Upload] Resized upload successful:', resizedURL);
 
         const resizedImage = {
           url: resizedURL,
@@ -121,9 +110,7 @@ export const handleUpload = async ({
           order,
         };
 
-        console.log('[Upload] Creating Firestore doc for resized...');
         await createDocument(true, resizedImage);
-        console.log('[Upload] Firestore doc created for resized image');
 
         onUpload();
         refetch();
