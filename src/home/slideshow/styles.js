@@ -3,14 +3,14 @@ export const styles = {
     width: 'auto',
     height: '97vh',
     overflow: 'hidden',
-    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    margin: '0 5vw',
   },
   image: {
-    height: 'calc(100% - 112px - 18px)',
+    // height: 'calc(100% - 60px - 18px)',
+    margin: '0 5vw 2.5% 5vw',
+    height: '90%',
     objectFit: 'contain',
   },
 };
