@@ -4,18 +4,14 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: helvetica;
 }
 
 @font-face {
   font-family: 'helvetica';
   font-size: 11;
   font-style: normal;
-  src: url('/fonts/woff2/Helvetica-52.woff2');
-}
-
-@font-face {
-  font-family: 'timesNewRoman';
-  src: url('/fonts/woff2/TimesNewRomanMT-CondItalic.woff2');
+  src: url('/fonts/woff2/Helvetica.ttc');
 }
 
 a {
