@@ -37,20 +37,20 @@ export const ImageProvider = ({ children }) => {
   }, []);
 
   // Step 2: Fetch original images only after loader images are set
-  // useEffect(() => {
-  //   if (!loaderFetched) return;
+  useEffect(() => {
+    if (!loaderFetched) return;
 
-  //   const loadOriginalImages = async () => {
-  //     try {
-  //       const originalImages = await fetchImages(false);
-  //       setImages(() => orderImages(originalImages));
-  //     } catch (error) {
-  //       toast.error(error.message || 'Error loading original images');
-  //     }
-  //   };
+    const loadOriginalImages = async () => {
+      try {
+        const originalImages = await fetchImages(false);
+        setImages(() => orderImages(originalImages));
+      } catch (error) {
+        toast.error(error.message || 'Error loading original images');
+      }
+    };
 
-  //   loadOriginalImages();
-  // }, [loaderFetched]); // ✅ Triggers only after loader images are fetched
+    loadOriginalImages();
+  }, [loaderFetched]); // ✅ Triggers only after loader images are fetched
 
   return (
     <ImageContext.Provider value={{ images, setImages, refetchImages }}>
