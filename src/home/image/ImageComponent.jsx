@@ -1,12 +1,11 @@
 import './styles.css';
+
 export const ImageComponent = ({ image, style }) => {
   return (
     <img
       src={image?.url}
-      alt={image?.name}
-      style={{
-        ...style,
-      }}
+      alt={image?.name || ''}
+      style={style}
       className='image-component'
     />
   );

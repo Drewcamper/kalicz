@@ -18,21 +18,25 @@ export const Slideshow = () => {
     setCurrentIndex(prev => (prev - 1 + images.length) % images.length);
   };
 
+  const encodeToBase64 = str => {
+    return window.btoa(unescape(encodeURIComponent(str)));
+  };
+
   const handleMouseMove = e => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const relativeX = e.clientX - rect.left;
 
-    const cursorText = relativeX < rect.width / 2 ? '&#8592;' : '&#8594;';
-    const cursorSVG = `
-      data:image/svg+xml;base64,${btoa(`
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-          <text x="32" y="32" dominant-baseline="middle" text-anchor="middle" font-size="16" fill="black">
-            ${cursorText}
-          </text>
-        </svg>
-      `)}
+    const cursorText = relativeX < rect.width / 2 ? '←' : '→';
+    const svgString = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+        <text x="32" y="32" dominant-baseline="middle" text-anchor="middle" font-size="24" fill="black">
+          ${cursorText}
+        </text>
+      </svg>
     `;
+
+    const cursorSVG = `data:image/svg+xml;base64,${encodeToBase64(svgString)}`;
 
     setCursorStyle(`url(${cursorSVG}), auto`);
   };
@@ -66,11 +70,14 @@ export const Slideshow = () => {
   return (
     <div
       ref={containerRef}
-      style={{ ...styles.container, cursor: cursorStyle }}
+      style={styles.container}
       className='slideshow-container'
       onMouseMove={handleMouseMove}
       onClick={handleClick}>
-      <ImageComponent image={currentImage} style={styles.image} />
+      <ImageComponent
+        image={currentImage}
+        style={{ ...styles.image, cursor: cursorStyle }}
+      />
     </div>
   );
 };
