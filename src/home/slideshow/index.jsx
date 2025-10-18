@@ -81,7 +81,7 @@ export const Slideshow = () => {
         style={{
           ...styles.image,
           cursor: cursorStyle,
-          height: currentImage.originalHeight,
+          height: currentImage?.originalHeight,
         }}
       />
     </div>
