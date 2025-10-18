@@ -38,7 +38,7 @@ export const ImageProvider = ({ children }) => {
 
   // Step 2: Fetch original images only after loader images are set
   useEffect(() => {
-    if (!loaderFetched) return;
+    // if (!loaderFetched) return;
 
     const loadOriginalImages = async () => {
       try {
@@ -50,7 +50,7 @@ export const ImageProvider = ({ children }) => {
     };
 
     loadOriginalImages();
-  }, [loaderFetched]); // ✅ Triggers only after loader images are fetched
+  }, []); // ✅ Triggers only after loader images are fetched
 
   return (
     <ImageContext.Provider value={{ images, setImages, refetchImages }}>
