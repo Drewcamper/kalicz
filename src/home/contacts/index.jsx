@@ -22,7 +22,9 @@ function Contacts({ handleContactClick }) {
         </div>
       </div>
       <div style={styles.close} className='close' onClick={handleContactClick}>
-        <div style={styles.closeText}>Close</div>
+        <div style={styles.closeText} className='closeText'>
+          Close
+        </div>
       </div>
     </div>
   );

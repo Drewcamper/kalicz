@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useImageContext } from '../../context';
 import { ImageComponent } from '../image/ImageComponent';
 import { styles } from './styles';
-import './slideshow.css';
 
 export const Slideshow = () => {
   const { images } = useImageContext();
@@ -22,23 +21,26 @@ export const Slideshow = () => {
     return window.btoa(unescape(encodeURIComponent(str)));
   };
 
-  const handleMouseMove = e => {
+  const handleMouseMove = () => {
     if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const relativeX = e.clientX - rect.left;
 
-    const cursorText = relativeX < rect.width / 2 ? '←' : '→';
+    const cursorText = '˃'; // U+02C3
+    const svgSize = 48;
+    const fontSize = 36;
+
     const svgString = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-        <text x="32" y="32" dominant-baseline="middle" text-anchor="middle" font-size="24" fill="black">
-          ${cursorText}
-        </text>
-      </svg>
-    `;
+    <svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}">
+      <text x="${svgSize / 2}" y="${
+      svgSize / 2
+    }" dominant-baseline="middle" text-anchor="middle" font-size="${fontSize}" fill="black">
+        ${cursorText}
+      </text>
+    </svg>
+  `;
 
     const cursorSVG = `data:image/svg+xml;base64,${encodeToBase64(svgString)}`;
 
-    setCursorStyle(`url(${cursorSVG}), auto`);
+    setCursorStyle(`url(${cursorSVG}) ${svgSize / 2} ${svgSize / 2}, auto`);
   };
 
   const handleClick = e => {

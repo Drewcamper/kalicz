@@ -8,12 +8,14 @@ function IndexPage() {
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-        gap: '10px',
-        padding: '20px',
-        height: 'auto',
+        gridTemplateColumns: 'repeat(6, 1fr)',
+        gap: '16px',
+        padding: '16px',
+        height: '100vh',
         overflowY: 'auto',
         alignItems: 'start',
+        boxSizing: 'border-box',
+        paddingBottom: '60px',
       }}>
       {images?.map((image, index) => (
         <ImageComponent

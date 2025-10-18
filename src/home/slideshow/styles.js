@@ -8,9 +8,6 @@ export const styles = {
     position: 'relative',
   },
   image: {
-    // height: 'calc(100% - 60px - 18px)',
-    // margin: '0 5vw 3vh 5vw',
-    width: '90vw',
     maxHeight: '90vh',
     objectFit: 'contain',
   },

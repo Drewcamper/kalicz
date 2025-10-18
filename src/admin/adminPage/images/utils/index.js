@@ -17,33 +17,33 @@ export const handleOnDragEnd = async params => {
   const { source, destination } = result;
 
   if (!destination) return;
-  if (
-    source.droppableId === destination.droppableId &&
-    source.index === destination.index
-  )
-    return;
+
+  // Flatten position indexes into one linear sequence
+  const startRow = parseInt(source.droppableId.replace('row-', ''), 10);
+  const endRow = parseInt(destination.droppableId.replace('row-', ''), 10);
+
+  // Calculate absolute source/destination indexes in the flat array
+  const sourceIndex = startRow * CHUNK_SIZE + source.index;
+  const destinationIndex = endRow * CHUNK_SIZE + destination.index;
+
+  if (sourceIndex === destinationIndex) return;
 
   try {
-    // Create a copy of the current images
     const updatedImages = [...images];
-    // Remove the dragged item
-    const [movedImage] = updatedImages.splice(source.index, 1);
-    // Insert it at the new position
-    updatedImages.splice(destination.index, 0, movedImage);
+    const [movedImage] = updatedImages.splice(sourceIndex, 1);
+    updatedImages.splice(destinationIndex, 0, movedImage);
 
-    // Reassign order numbers sequentially
+    // Recalculate and normalize order
     const reorderedImages = updatedImages.map((img, index) => ({
       ...img,
       order: index + 1,
     }));
 
-    // Optimistically update local state
     setImages(reorderedImages);
 
-    // Prepare batch update for Firestore
+    // Batch update to Firestore
     const batch = writeBatch(firestore);
 
-    // Update all images to maintain consistency
     for (const img of reorderedImages) {
       const { originalImage, loaderImage } = await getLinkedImages(img.id);
 
@@ -61,10 +61,9 @@ export const handleOnDragEnd = async params => {
     await batch.commit();
     toast.success('Order updated successfully');
   } catch (error) {
-    console.error('Drag and drop error:', error);
+    console.error('Matrix drag error:', error);
     toast.error('Failed to update order');
     setError(error.message);
-    // Revert local state if Firestore update fails
     setImages(images);
   }
 };

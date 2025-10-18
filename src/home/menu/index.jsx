@@ -5,7 +5,7 @@ export const Menu = ({ onContactClick }) => {
   return (
     <div className='container'>
       <a href='/' className='link'>
-        Máté Kalicz
+        Mate Kalicz
       </a>
       <a href='/index' className='link'>
         Index

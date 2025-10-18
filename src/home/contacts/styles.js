@@ -8,13 +8,11 @@ export const styles = {
     zIndex: 100,
     width: 'calc(100vw - 16px)',
     backgroundColor: 'rgba(255,255,255,0.8)',
-    color: 'black',
   },
 
   whiteBg: {
-    padding: '8px 0px',
     width: '100%',
-    maxWidth: '360px',
+    maxWidth: '320px',
     height: 'auto',
     backgroundColor: 'white',
     boxSizing: 'border-box',
@@ -24,12 +22,11 @@ export const styles = {
     height: '100%',
     width: '100%',
     backgroundColor: 'white',
-    border: '1px solid rgba(0, 0, 0, .1)',
     boxSizing: 'border-box',
-    padding: '16px 10px',
     display: 'flex',
     flexDirection: 'column',
     textAlign: 'left',
+    padding: '15px 16px',
   },
 
   introduction: {
@@ -45,15 +42,13 @@ export const styles = {
     cursor: 'pointer',
     textDecoration: 'none',
     height: '100%',
-    width: 'calc(100% - 360px)',
-    marginTop: '8px',
+    width: '100%',
   },
 
   closeText: {
     position: 'relative',
     width: '50px',
-    fontFamily: 'timesNewRoman',
-    // backgroundColor: 'white',
-    // padding: '0px 80px',
+    top: '4px',
+    fontStyle: 'comorant-garamond',
   },
 };

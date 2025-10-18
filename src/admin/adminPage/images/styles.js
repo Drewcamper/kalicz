@@ -11,6 +11,21 @@ export const styles = {
     alignItems: 'center',
     flexDirection: 'column',
   },
+  loadingOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100vw',
+    height: '100vh',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loaderText: {
+    color: '#fff',
+    fontSize: '18px',
+  },
   gridRow: {
     display: 'flex',
     gap: '20px',
