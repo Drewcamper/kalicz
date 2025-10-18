@@ -1,4 +1,3 @@
-// import { styles } from './styles';
 import './styles.css';
 
 export const Menu = ({ onContactClick }) => {
