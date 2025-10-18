@@ -88,10 +88,19 @@ export const handleUpload = async ({
       try {
         const originalURL = await getDownloadURL(originalUploadTask.snapshot.ref);
 
+        //et Original Image Dimensions
+        const img = new Image();
+        img.src = originalURL;
+        await new Promise(resolve => (img.onload = resolve));
+        const originalHeight = img.height;
+        const originalWidth = img.width;
+
         const originalImage = {
           url: originalURL,
           name: `${baseName}.${extension}`,
           order,
+          originalHeight,
+          originalWidth,
         };
         await createDocument(false, originalImage);
 
@@ -108,6 +117,8 @@ export const handleUpload = async ({
           url: resizedURL,
           name: `${baseName}.${extension}`,
           order,
+          originalHeight,
+          originalWidth,
         };
 
         await createDocument(true, resizedImage);

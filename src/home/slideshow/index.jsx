@@ -78,7 +78,11 @@ export const Slideshow = () => {
       onClick={handleClick}>
       <ImageComponent
         image={currentImage}
-        style={{ ...styles.image, cursor: cursorStyle }}
+        style={{
+          ...styles.image,
+          cursor: cursorStyle,
+          height: currentImage.originalHeight,
+        }}
       />
     </div>
   );
