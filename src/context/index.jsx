@@ -22,19 +22,19 @@ export const ImageProvider = ({ children }) => {
   };
 
   // Step 1: Fetch loader images
-  useEffect(() => {
-    const loadLoaderImages = async () => {
-      try {
-        const loaderImages = await fetchImages(true);
-        setImages(() => orderImages(loaderImages));
-        setLoaderFetched(true); // ✅ Trigger original fetch
-      } catch (error) {
-        toast.error(error.message || 'Error loading loader images');
-      }
-    };
+  // useEffect(() => {
+  //   const loadLoaderImages = async () => {
+  //     try {
+  //       const loaderImages = await fetchImages(true);
+  //       setImages(() => orderImages(loaderImages));
+  //       setLoaderFetched(true); // ✅ Trigger original fetch
+  //     } catch (error) {
+  //       toast.error(error.message || 'Error loading loader images');
+  //     }
+  //   };
 
-    loadLoaderImages();
-  }, []);
+  //   loadLoaderImages();
+  // }, []);
 
   // Step 2: Fetch original images only after loader images are set
   useEffect(() => {
