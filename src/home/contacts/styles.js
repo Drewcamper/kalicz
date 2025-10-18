@@ -26,7 +26,7 @@ export const styles = {
     display: 'flex',
     flexDirection: 'column',
     textAlign: 'left',
-    padding: '16px',
+    padding: '18px 16px',
   },
 
   introduction: {
