@@ -1,3 +1,7 @@
+.image-component {
+  object-fit: contain;
+}
+
 @media (max-width: 450px) {
   .image-component {
     height: 100%;
