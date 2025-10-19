@@ -1,10 +1,9 @@
 .container {
   display: flex;
-  padding: 9px 12px;
+  padding: 12px 16px;
   align-items: center;
 }
 .link {
-  margin: 4px;
   margin-right: 64px;
   text-decoration: none;
   color: black;
