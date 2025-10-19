@@ -9,8 +9,8 @@ function IndexPage() {
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(6, 1fr)',
-        gap: '16px',
-        padding: '16px',
+        gap: '20px',
+        padding: '20px',
         height: '100vh',
         overflowY: 'auto',
         alignItems: 'start',
