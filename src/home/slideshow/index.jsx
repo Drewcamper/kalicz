@@ -45,7 +45,10 @@ export const Slideshow = () => {
 
   const handleClick = e => {
     if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
+
+    if (e.target.tagName !== 'IMG') return;
+
+    const rect = e.target.getBoundingClientRect();
     const relativeX = e.clientX - rect.left;
 
     if (relativeX > rect.width / 2) {

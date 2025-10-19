@@ -6,13 +6,13 @@ export const styles = {
     top: 0,
     left: 0,
     zIndex: 100,
-    width: 'calc(100vw - 16px)',
+    width: 'calc(100vw - 20px)',
     backgroundColor: 'rgba(255,255,255,0.8)',
   },
 
   whiteBg: {
     width: '100%',
-    maxWidth: '320px',
+    maxWidth: '360px',
     height: 'auto',
     backgroundColor: 'white',
     boxSizing: 'border-box',
@@ -26,7 +26,7 @@ export const styles = {
     display: 'flex',
     flexDirection: 'column',
     textAlign: 'left',
-    padding: '12px 16px',
+    padding: '16px 26px',
   },
 
   introduction: {
@@ -48,7 +48,7 @@ export const styles = {
   closeText: {
     position: 'relative',
     width: '50px',
-    top: '4px',
+    top: '6px',
     fontStyle: 'comorant-garamond',
   },
 };
