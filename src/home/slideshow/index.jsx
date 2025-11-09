@@ -24,7 +24,14 @@ export const Slideshow = () => {
   const handleMouseMove = () => {
     if (!containerRef.current) return;
 
-    const cursorText = '˃'; // U+02C3
+    const cursorTextRight = '˃'; // U+02C3
+    const cursorTextLeft = '˂'; // U+02C2
+    const cursorPosition =
+      window.event.clientX - containerRef.current.getBoundingClientRect().left;
+    const cursorText =
+      cursorPosition > containerRef.current.clientWidth / 2
+        ? cursorTextRight
+        : cursorTextLeft;
     const svgSize = 48;
     const fontSize = 36;
 

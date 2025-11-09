@@ -7,7 +7,7 @@ function Contacts({ handleContactClick }) {
       <div style={styles.whiteBg} className='whiteBg'>
         <div style={styles.contacts} className='contacts'>
           <div style={styles.introduction}>
-            Mate Kalicz is visual artist based in Budapest, Hungary.
+            Mate Kalicz is a visual artist based in Budapest, Hungary.
           </div>
           <div style={styles.introduction}>
             He combines applied work with a personal approach.{' '}
