@@ -32,8 +32,8 @@ export const Slideshow = () => {
       cursorPosition > containerRef.current.clientWidth / 2
         ? cursorTextRight
         : cursorTextLeft;
-    const svgSize = 48;
-    const fontSize = 36;
+    const svgSize = 24;
+    const fontSize = 18;
 
     const svgString = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}">
@@ -92,6 +92,7 @@ export const Slideshow = () => {
           ...styles.image,
           cursor: cursorStyle,
           height: currentImage?.originalHeight,
+          visibility: currentImage ? 'visible' : 'hidden',
         }}
       />
     </div>

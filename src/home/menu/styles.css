@@ -2,6 +2,9 @@
   display: flex;
   padding: 16px 20px;
   align-items: center;
+  position: fixed;
+  background: transparent;
+  z-index: 1;
 }
 .link {
   margin-right: 64px;

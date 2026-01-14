@@ -24,18 +24,25 @@ function App() {
           style={{
             height: '100vh',
             width: '100vw',
-            position: 'fixed',
-            left: '0',
-            top: '0',
-            margin: '0',
-            padding: '0',
+            // position: 'fixed',
+            // overflow: 'hidden', // prevent double scrollbars
+            position: 'relative',
           }}>
           <Menu onContactClick={handleContactClick} />
-          <Routes>
-            <Route path='/' element={<Slideshow />} />
-            <Route path='/admin' element={<Admin />} />
-            <Route path='/index' element={<IndexPage />} />
-          </Routes>
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+              overflowY: 'auto', // THIS enables scrolling
+              paddingTop: '28px', // space for menu
+              boxSizing: 'border-box',
+            }}>
+            <Routes>
+              <Route path='/' element={<Slideshow />} />
+              <Route path='/admin' element={<Admin />} />
+              <Route path='/index' element={<IndexPage />} />
+            </Routes>
+          </div>
         </div>
         {showContact && <Contacts handleContactClick={handleContactClick} />}
       </Router>
