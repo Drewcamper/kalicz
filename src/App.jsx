@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { Admin } from './admin/Admin';
 import IndexPage from './home/index/IndexPage';
 import { Menu } from './home/menu';
-import { Slideshow } from './home/slideshow';
 import Contacts from './home/contacts';
 
 import { ImageProvider } from './context';
@@ -26,23 +25,13 @@ function App() {
             width: '100vw',
             // position: 'fixed',
             // overflow: 'hidden', // prevent double scrollbars
-            position: 'relative',
+            // position: 'relative',
           }}>
           <Menu onContactClick={handleContactClick} />
-          <div
-            style={{
-              height: '100%',
-              width: '100%',
-              overflowY: 'auto', // THIS enables scrolling
-              paddingTop: '28px', // space for menu
-              boxSizing: 'border-box',
-            }}>
-            <Routes>
-              <Route path='/' element={<Slideshow />} />
-              <Route path='/admin' element={<Admin />} />
-              <Route path='/index' element={<IndexPage />} />
-            </Routes>
-          </div>
+          <Routes>
+            <Route path='/' element={<IndexPage />} />
+            <Route path='/admin' element={<Admin />} />
+          </Routes>
         </div>
         {showContact && <Contacts handleContactClick={handleContactClick} />}
       </Router>

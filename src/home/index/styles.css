@@ -40,6 +40,15 @@
   animation: rise 1.5s ease-out forwards;
 }
 
+.phoneView-image-item {
+  margin-bottom: 21vh;
+}
+
+.phoneView-image-item img {
+  width: 100%;
+  height: auto;
+}
+
 @keyframes rise {
   to {
     opacity: 1;

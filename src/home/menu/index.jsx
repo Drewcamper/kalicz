@@ -1,13 +1,17 @@
 import './styles.css';
 
 export const Menu = ({ onContactClick }) => {
+  const scrollToTop = () => {
+     window.scrollTo({
+       top: 0,
+       behavior: 'smooth',
+     });
+  };
+
   return (
     <div className='container'>
-      <a href='/' className='link'>
+      <a className='link' onClick={scrollToTop}>
         Mate Kalicz
-      </a>
-      <a href='/index' className='link'>
-        Index
       </a>
       <a
         onClick={onContactClick}
