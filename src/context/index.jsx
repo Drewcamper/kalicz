@@ -6,6 +6,7 @@ const ImageContext = createContext();
 
 export const ImageProvider = ({ children }) => {
   const [images, setImages] = useState([]);
+  const [phoneView, setPhoneView] = useState(false);
   const [loaderFetched, setLoaderFetched] = useState(false); // ✅ Track loader readiness
 
   const orderImages = images => {
@@ -52,8 +53,21 @@ export const ImageProvider = ({ children }) => {
     loadOriginalImages();
   }, [loaderFetched]); // ✅ Triggers only after loader images are fetched
 
+  /* ----------------------------- Responsive ----------------------------- */
+
+  useEffect(() => {
+    const updateView = () => {
+      setPhoneView(window.innerWidth <= 600);
+    };
+
+    updateView();
+    window.addEventListener('resize', updateView);
+    return () => window.removeEventListener('resize', updateView);
+  }, []);
+
   return (
-    <ImageContext.Provider value={{ images, setImages, refetchImages }}>
+    <ImageContext.Provider
+      value={{ images, setImages, phoneView, setPhoneView, refetchImages }}>
       {children}
     </ImageContext.Provider>
   );

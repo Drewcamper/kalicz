@@ -5,29 +5,16 @@ import { ImageComponent } from '../image/ImageComponent';
 import './styles.css';
 
 function IndexPage() {
-  const { images } = useImageContext();
+  const { images, phoneView } = useImageContext();
 
   const [visibleImages, setVisibleImages] = useState([]);
   const [animatedIds, setAnimatedIds] = useState(() => new Set());
   const [previewImage, setPreviewImage] = useState(null);
-  const [phoneView, setPhoneView] = useState(false);
 
   const sentinelRef = useRef(null);
   const scrollDirectionRef = useRef('down');
   const lastScrollYRef = useRef(0);
   const animationObserverRef = useRef(null);
-
-  /* ----------------------------- Responsive ----------------------------- */
-
-  useEffect(() => {
-    const updateView = () => {
-      setPhoneView(window.innerWidth <= 480);
-    };
-
-    updateView();
-    window.addEventListener('resize', updateView);
-    return () => window.removeEventListener('resize', updateView);
-  }, []);
 
   /* ----------------------------- Scroll Direction ----------------------------- */
 

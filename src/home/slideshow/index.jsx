@@ -83,7 +83,6 @@ export const Slideshow = () => {
     <div
       ref={containerRef}
       style={styles.container}
-      className='slideshow-container'
       onMouseMove={handleMouseMove}
       onClick={handleClick}>
       <ImageComponent

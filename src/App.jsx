@@ -1,21 +1,50 @@
 import './App.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 
 import { Admin } from './admin/Admin';
 import IndexPage from './home/index/IndexPage';
 import { Menu } from './home/menu';
 import Contacts from './home/contacts';
+import { Slideshow } from './home/slideshow';
 
-import { ImageProvider } from './context';
+import { ImageProvider, useImageContext } from './context';
 
-function App() {
+const AppContent = () => {
   const [showContact, setShowContact] = useState(false);
+  const { phoneView } = useImageContext();
 
   const handleContactClick = () => {
     setShowContact(prev => !prev);
   };
 
+  return (
+    <>
+      <Menu onContactClick={handleContactClick} />
+
+      <Routes>
+        {/* Base route */}
+        <Route path='/' element={phoneView ? <IndexPage /> : <Slideshow />} />
+
+        {/* Index route: desktop only */}
+        <Route
+          path='/index'
+          element={phoneView ? <Navigate to='/' replace /> : <IndexPage />}
+        />
+
+        {/* Admin route */}
+        <Route path='/admin' element={<Admin />} />
+
+        {/* Fallback */}
+        <Route path='*' element={<Navigate to='/' replace />} />
+      </Routes>
+
+      {showContact && <Contacts handleContactClick={handleContactClick} />}
+    </>
+  );
+};
+
+function App() {
   return (
     <ImageProvider>
       <Router>
@@ -23,17 +52,9 @@ function App() {
           style={{
             height: '100vh',
             width: '100vw',
-            // position: 'fixed',
-            // overflow: 'hidden', // prevent double scrollbars
-            // position: 'relative',
           }}>
-          <Menu onContactClick={handleContactClick} />
-          <Routes>
-            <Route path='/' element={<IndexPage />} />
-            <Route path='/admin' element={<Admin />} />
-          </Routes>
+          <AppContent />
         </div>
-        {showContact && <Contacts handleContactClick={handleContactClick} />}
       </Router>
     </ImageProvider>
   );
