@@ -6,7 +6,8 @@ export const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
-    padding: '48px 20px',
+    padding: '48px 0px',
+    margin: '0px 20px',
   },
   image: {
     maxHeight: 'calc(92vh - 40px)',
