@@ -87,9 +87,7 @@ export const ImageProvider = ({ children }) => {
         setHasLoadedOriginal(true);
 
         // Preload all original images before switching
-        console.log('🔄 Preloading original images...');
         await preloadImages(orderedOriginalImages.map(img => img.url));
-        console.log('✅ Original images preloaded successfully');
 
         // Mark that original images are fully loaded
         setOriginalImagesLoaded(true);
@@ -110,7 +108,6 @@ export const ImageProvider = ({ children }) => {
   // Step 3: Switch to original images only after they're fully loaded
   useEffect(() => {
     if (originalImagesLoaded && originalImages.length > 0) {
-      console.log('🔄 Switching from loader to original images');
 
       // Small delay to ensure smooth transition
       setTimeout(() => {
