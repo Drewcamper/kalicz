@@ -4,10 +4,28 @@ import { toast } from 'react-toastify';
 
 const ImageContext = createContext();
 
+// Helper function to preload images
+const preloadImages = imageUrls => {
+  return Promise.all(
+    imageUrls.map(url => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = url;
+      });
+    })
+  );
+};
+
 export const ImageProvider = ({ children }) => {
-  const [images, setImages] = useState([]);
+  const [loaderImages, setLoaderImages] = useState([]);
+  const [originalImages, setOriginalImages] = useState([]);
+  const [displayImages, setDisplayImages] = useState([]); // Images currently being displayed
   const [phoneView, setPhoneView] = useState(false);
-  const [loaderFetched, setLoaderFetched] = useState(false); // ✅ Track loader readiness
+  const [isLoadingOriginal, setIsLoadingOriginal] = useState(false);
+  const [hasLoadedOriginal, setHasLoadedOriginal] = useState(false);
+  const [originalImagesLoaded, setOriginalImagesLoaded] = useState(false);
 
   const orderImages = images => {
     return images.sort((a, b) => a.order - b.order);
@@ -15,20 +33,36 @@ export const ImageProvider = ({ children }) => {
 
   const refetchImages = async () => {
     try {
-      const fetchedImages = await fetchImages(true);
-      setImages(() => orderImages(fetchedImages));
+      setIsLoadingOriginal(true);
+      const fetchedImages = await fetchImages(false);
+      const orderedImages = orderImages(fetchedImages);
+
+      // Preload images before updating state
+      await preloadImages(orderedImages.map(img => img.url));
+
+      setOriginalImages(orderedImages);
+      setDisplayImages(orderedImages);
+      setHasLoadedOriginal(true);
+      setOriginalImagesLoaded(true);
     } catch (error) {
       toast.error(error.message || 'Error refetching images');
+    } finally {
+      setIsLoadingOriginal(false);
     }
   };
 
-  // Step 1: Fetch loader images
+  // Step 1: Fetch loader images immediately
   useEffect(() => {
     const loadLoaderImages = async () => {
       try {
         const loaderImages = await fetchImages(true);
-        setImages(() => orderImages(loaderImages));
-        setLoaderFetched(true); // ✅ Trigger original fetch
+        const orderedLoaderImages = orderImages(loaderImages);
+
+        // Preload loader images too
+        await preloadImages(orderedLoaderImages.map(img => img.url));
+
+        setLoaderImages(orderedLoaderImages);
+        setDisplayImages(orderedLoaderImages); // Start with loader images
       } catch (error) {
         toast.error(error.message || 'Error loading loader images');
       }
@@ -37,21 +71,57 @@ export const ImageProvider = ({ children }) => {
     loadLoaderImages();
   }, []);
 
-  // Step 2: Fetch original images only after loader images are set
+  // Step 2: Fetch and preload original images after loader images are displayed
   useEffect(() => {
-    if (!loaderFetched) return;
+    if (loaderImages.length === 0) return;
 
     const loadOriginalImages = async () => {
+      setIsLoadingOriginal(true);
       try {
+        // Fetch original images
         const originalImages = await fetchImages(false);
-        setImages(() => orderImages(originalImages));
+        const orderedOriginalImages = orderImages(originalImages);
+
+        // Store original images but don't display yet
+        setOriginalImages(orderedOriginalImages);
+        setHasLoadedOriginal(true);
+
+        // Preload all original images before switching
+        console.log('🔄 Preloading original images...');
+        await preloadImages(orderedOriginalImages.map(img => img.url));
+        console.log('✅ Original images preloaded successfully');
+
+        // Mark that original images are fully loaded
+        setOriginalImagesLoaded(true);
       } catch (error) {
         toast.error(error.message || 'Error loading original images');
+        setIsLoadingOriginal(false);
       }
     };
 
-    loadOriginalImages();
-  }, [loaderFetched]); // ✅ Triggers only after loader images are fetched
+    // Start loading original images after loader images are displayed
+    const timer = setTimeout(() => {
+      loadOriginalImages();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [loaderImages]);
+
+  // Step 3: Switch to original images only after they're fully loaded
+  useEffect(() => {
+    if (originalImagesLoaded && originalImages.length > 0) {
+      console.log('🔄 Switching from loader to original images');
+
+      // Small delay to ensure smooth transition
+      setTimeout(() => {
+        setDisplayImages([...originalImages]);
+        setIsLoadingOriginal(false);
+
+        // Reset the flag for future updates
+        setOriginalImagesLoaded(false);
+      }, 300);
+    }
+  }, [originalImagesLoaded, originalImages]);
 
   /* ----------------------------- Responsive ----------------------------- */
 
@@ -67,7 +137,16 @@ export const ImageProvider = ({ children }) => {
 
   return (
     <ImageContext.Provider
-      value={{ images, setImages, phoneView, setPhoneView, refetchImages }}>
+      value={{
+        images: displayImages, // Use displayImages as the current images
+        loaderImages,
+        originalImages,
+        phoneView,
+        setPhoneView,
+        refetchImages,
+        isLoadingOriginal,
+        hasLoadedOriginal,
+      }}>
       {children}
     </ImageContext.Provider>
   );

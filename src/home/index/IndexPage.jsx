@@ -1,138 +1,143 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Masonry from 'react-masonry-css';
 import { useImageContext } from '../../context';
 import { ImageComponent } from '../image/ImageComponent';
+import { AnimationObserver } from './animationObserver';
+import { InfiniteScrollSentinel } from './infiniteScroll';
 import './styles.css';
 
 function IndexPage() {
-  const { images, phoneView } = useImageContext();
+  const { images, phoneView, isLoadingOriginal, hasLoadedOriginal } = useImageContext();
 
   const [visibleImages, setVisibleImages] = useState([]);
-  const [animatedIds, setAnimatedIds] = useState(() => new Set());
+  const [animatedIds, setAnimatedIds] = useState(new Set());
   const [previewImage, setPreviewImage] = useState(null);
 
-  const sentinelRef = useRef(null);
-  const scrollDirectionRef = useRef('down');
-  const lastScrollYRef = useRef(0);
   const animationObserverRef = useRef(null);
+  const infiniteScrollRef = useRef(null);
+  const containerRef = useRef(null);
 
-  /* ----------------------------- Scroll Direction ----------------------------- */
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      scrollDirectionRef.current =
-        currentScrollY > lastScrollYRef.current ? 'down' : 'up';
-      lastScrollYRef.current = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  /* ----------------------------- Initial Load ----------------------------- */
-
-  useEffect(() => {
-    if (!images?.length) return;
-    setVisibleImages(images.slice(0, 6));
-  }, [images]);
-
-  /* ----------------------------- Infinite Scroll ----------------------------- */
+  /* ------------------------------------------------------------------ */
+  /* RESET visibleImages WHEN ORIGINALS LOAD                             */
+  /* ------------------------------------------------------------------ */
 
   useEffect(() => {
     if (!images?.length) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && visibleImages.length < images.length) {
-          setVisibleImages(prev => images.slice(0, prev.length + 3));
-        }
-      },
-      { rootMargin: '300px' }
-    );
+    // Loader → Original transition
+    if (hasLoadedOriginal && !isLoadingOriginal) {
+      setVisibleImages(images.slice(0, phoneView ? images.length : 6));
+      setAnimatedIds(new Set());
 
-    if (sentinelRef.current) observer.observe(sentinelRef.current);
-    return () => observer.disconnect();
-  }, [images, visibleImages.length]);
-
-  /* ----------------------------- Animation Setup ----------------------------- */
-
-  // Setup animation observer when images are visible and component is mounted
-  useEffect(() => {
-    // Skip if phone view or no images
-    if (phoneView || !visibleImages.length) {
       if (animationObserverRef.current) {
         animationObserverRef.current.disconnect();
         animationObserverRef.current = null;
       }
+    }
+  }, [images, hasLoadedOriginal, isLoadingOriginal, phoneView]);
+
+  /* ------------------------------------------------------------------ */
+  /* ANIMATION HANDLERS                                                  */
+  /* ------------------------------------------------------------------ */
+
+  const handleAnimateEnter = useCallback(id => {
+    setAnimatedIds(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleAnimateExit = useCallback(id => {
+    setAnimatedIds(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
+  /* ------------------------------------------------------------------ */
+  /* INFINITE SCROLL                                                     */
+  /* ------------------------------------------------------------------ */
+
+  useEffect(() => {
+    if (
+      phoneView ||
+      isLoadingOriginal ||
+      !images.length ||
+      visibleImages.length >= images.length
+    ) {
       return;
     }
 
-    // Clean up previous observer
-    if (animationObserverRef.current) {
-      animationObserverRef.current.disconnect();
+    if (!infiniteScrollRef.current) {
+      infiniteScrollRef.current = new InfiniteScrollSentinel();
     }
 
-    // Create new observer
-    animationObserverRef.current = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          const id = entry.target.dataset.imageId;
+    const container =
+      containerRef.current?.querySelector('.my-masonry-grid') || containerRef.current;
 
-          if (entry.isIntersecting) {
-            // Animate when scrolling down
-            if (scrollDirectionRef.current === 'down') {
-              setAnimatedIds(prev => {
-                const next = new Set(prev);
-                next.add(id);
-                return next;
-              });
-            }
-          } else {
-            // Remove animation when scrolling up
-            if (scrollDirectionRef.current === 'up') {
-              setAnimatedIds(prev => {
-                const next = new Set(prev);
-                next.delete(id);
-                return next;
-              });
-            }
-          }
-        });
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '100px 0px',
-      }
-    );
-
-    // Need to wait for next tick to ensure DOM is rendered
-    setTimeout(() => {
-      // Observe all masonry items
-      const masonryItems = document.querySelectorAll('.masonry-item');
-      masonryItems.forEach(item => {
-        if (item && animationObserverRef.current) {
-          animationObserverRef.current.observe(item);
-        }
+    infiniteScrollRef.current.setupObserver(container, () => {
+      setVisibleImages(prev => {
+        const nextLength = Math.min(prev.length + 3, images.length);
+        return images.slice(0, nextLength);
       });
-    }, 0);
+    });
 
+    return () => infiniteScrollRef.current?.disconnect();
+  }, [images, visibleImages.length, phoneView, isLoadingOriginal]);
+
+  /* ------------------------------------------------------------------ */
+  /* ANIMATION OBSERVER                                                  */
+  /* ------------------------------------------------------------------ */
+
+  useEffect(() => {
+    if (phoneView || isLoadingOriginal || !visibleImages.length) {
+      animationObserverRef.current?.disconnect();
+      animationObserverRef.current = null;
+      return;
+    }
+
+    if (!animationObserverRef.current) {
+      animationObserverRef.current = new AnimationObserver();
+    }
+
+    const items = document.querySelectorAll('.masonry-item[data-image-id]');
+    items.forEach(item =>
+      animationObserverRef.current.observe(item, {
+        onEnter: handleAnimateEnter,
+        onExit: handleAnimateExit,
+      })
+    );
+  }, [
+    visibleImages,
+    phoneView,
+    isLoadingOriginal,
+    handleAnimateEnter,
+    handleAnimateExit,
+  ]);
+
+  /* ------------------------------------------------------------------ */
+  /* CLEANUP                                                            */
+  /* ------------------------------------------------------------------ */
+
+  useEffect(() => {
     return () => {
-      if (animationObserverRef.current) {
-        animationObserverRef.current.disconnect();
-        animationObserverRef.current = null;
-      }
+      animationObserverRef.current?.disconnect();
+      infiniteScrollRef.current?.disconnect();
     };
-  }, [visibleImages, phoneView]);
+  }, []);
 
-  /* ----------------------------- Render ----------------------------- */
+  /* ------------------------------------------------------------------ */
+  /* RENDER                                                             */
+  /* ------------------------------------------------------------------ */
 
   return (
-    <div style={{ padding: '20px', minHeight: '150vh' }}>
+    <div ref={containerRef} style={{ padding: '20px', minHeight: '150vh' }}>
       {phoneView ? (
-        visibleImages.map((image, index) => (
+        visibleImages.map(image => (
           <div
-            key={image.id || index}
+            key={`${image.id}-${isLoadingOriginal ? 'loader' : 'original'}`}
             className='phoneView-image-item'
             onClick={() => setPreviewImage(image)}>
             <ImageComponent image={image} />
@@ -144,14 +149,14 @@ function IndexPage() {
             breakpointCols={3}
             className='my-masonry-grid'
             columnClassName='my-masonry-grid_column'>
-            {visibleImages.map((image, index) => {
-              const uniqueId = image.id || index;
+            {visibleImages.map(image => {
+              const id = `${image.id}-${isLoadingOriginal ? 'loader' : 'original'}`;
               return (
                 <div
-                  key={uniqueId}
-                  data-image-id={uniqueId}
+                  key={id}
+                  data-image-id={id}
                   className={`masonry-item ${
-                    animatedIds.has(uniqueId) ? 'rise-animation' : ''
+                    animatedIds.has(id) ? 'rise-animation' : ''
                   }`}
                   onClick={() => setPreviewImage(image)}>
                   <ImageComponent image={image} />
@@ -159,10 +164,6 @@ function IndexPage() {
               );
             })}
           </Masonry>
-
-          {visibleImages.length < images.length && (
-            <div ref={sentinelRef} style={{ height: 1, marginTop: 40 }} />
-          )}
         </div>
       )}
 
