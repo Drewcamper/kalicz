@@ -28,7 +28,7 @@ export const ImageProvider = ({ children }) => {
   const [originalImagesLoaded, setOriginalImagesLoaded] = useState(false);
 
   const orderImages = images => {
-    return images.sort((a, b) => a.order - b.order);
+    return [...images].sort((a, b) => a.order - b.order);
   };
 
   const refetchImages = async () => {
@@ -108,7 +108,6 @@ export const ImageProvider = ({ children }) => {
   // Step 3: Switch to original images only after they're fully loaded
   useEffect(() => {
     if (originalImagesLoaded && originalImages.length > 0) {
-
       // Small delay to ensure smooth transition
       setTimeout(() => {
         setDisplayImages([...originalImages]);

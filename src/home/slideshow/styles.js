@@ -1,16 +1,13 @@
 export const styles = {
   container: {
-    width: 'auto',
-    // height: 'calc(97vh - 59px)',
+    width: '100%',
+    height: 'calc(97vh - 59px)',
     overflow: 'hidden',
+    display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
     padding: '48px 0px',
     margin: '0px 20px',
-  },
-  image: {
-    maxHeight: 'calc(92vh - 40px)',
-    objectFit: 'contain',
   },
 };

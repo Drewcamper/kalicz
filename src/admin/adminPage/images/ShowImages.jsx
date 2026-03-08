@@ -41,7 +41,7 @@ export const ShowImages = () => {
         .sort((a, b) => a.order - b.order); // Ensure proper sorting
 
       // Update local state
-      setImages(reorderedImages);
+      () => setImages(reorderedImages);
 
       // Prepare batch update for Firestore
       const batch = writeBatch(firestore);
@@ -104,7 +104,7 @@ export const ShowImages = () => {
         order: index + 1,
       }));
 
-      setImages(reorderedImages);
+      () => setImages(reorderedImages);
 
       const batch = writeBatch(firestore);
       const { originalImage, loaderImage } = await getLinkedImages(id);
@@ -142,7 +142,7 @@ export const ShowImages = () => {
     } catch (error) {
       console.error('Order update error:', error);
       toast.error(`Failed to update order: ${error.message}`);
-      setImages(images); // Revert on error
+      () => setImages(images); // Revert on error
     } finally {
       setIsReordering(false);
     }
@@ -156,9 +156,10 @@ export const ShowImages = () => {
   const handleUpdateName = async (id, newName) => {
     try {
       await updateImageTitle(id, newName);
-      setImages(prev =>
-        prev.map(img => (img.id === id ? { ...img, name: newName } : img))
-      );
+      () =>
+        setImages(prev =>
+          prev.map(img => (img.id === id ? { ...img, name: newName } : img))
+        );
       toast.success('Name updated successfully');
     } catch (error) {
       console.error('Name update error:', error);

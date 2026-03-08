@@ -27,7 +27,7 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
                 reject(new Error('Canvas is empty or toBlob failed'));
               }
             },
-            'image/jpeg',
+            'image',
             quality
           );
         } catch (err) {
