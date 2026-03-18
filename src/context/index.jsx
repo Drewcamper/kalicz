@@ -14,7 +14,7 @@ const preloadImages = imageUrls => {
         img.onerror = reject;
         img.src = url;
       });
-    })
+    }),
   );
 };
 
@@ -131,12 +131,19 @@ export const ImageProvider = ({ children }) => {
     return () => window.removeEventListener('resize', updateView);
   }, []);
 
+  const handleSetImages = newImages => {
+    setOriginalImages(newImages);
+    setDisplayImages(newImages);
+  };
+
   return (
     <ImageContext.Provider
       value={{
         images: displayImages, // Use displayImages as the current images
+        setImages: handleSetImages, // For admin page to update images
         loaderImages,
         originalImages,
+        setOriginalImages, // Direct setter for originalImages
         phoneView,
         setPhoneView,
         refetchImages,

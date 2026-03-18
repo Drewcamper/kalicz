@@ -58,7 +58,11 @@ export const EditImageInfo = ({
             <button onClick={handleSave} style={styles.saveButton}>
               Save
             </button>
-            <button onClick={handleCancelEdit} style={styles.cancelButton}>
+            <button
+              onClick={() => {
+                handleCancelEdit();
+              }}
+              style={styles.cancelButton}>
               Cancel
             </button>
           </div>
