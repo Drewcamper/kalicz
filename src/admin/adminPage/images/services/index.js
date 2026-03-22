@@ -45,9 +45,53 @@ export const updateImageIndex = async (originalId, newIndex) => {
 export const deleteImage = async originalId => {
   const { originalImage, loaderImage } = await getLinkedImages(originalId);
 
-  await deleteDocument(false, originalImage.id, originalImage?.url);
+  try {
+    // Delete both original and loader in the same operation
+    await deleteDocument(false, originalImage.id, originalImage?.url);
 
-  if (loaderImage) {
-    await deleteDocument(true, loaderImage.id, loaderImage?.url);
+    if (loaderImage) {
+      await deleteDocument(true, loaderImage.id, loaderImage?.url);
+    } else {
+      // If loader not found by order, log a warning to detect orphaned documents
+      console.warn(
+        `No loader image found for originalId: ${originalId} with order: ${originalImage.order}`,
+      );
+    }
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    throw error;
+  }
+};
+
+// Helper function to identify and cleanup orphaned loader documents
+export const cleanupOrphanedLoaders = async () => {
+  try {
+    const originals = await fetchCollection(false);
+    const loaders = await fetchCollection(true);
+
+    const orphanedLoaders = loaders.filter(loader => {
+      // A loader is orphaned if no original has the same order
+      return !originals.some(original => original.order === loader.order);
+    });
+
+    if (orphanedLoaders.length === 0) {
+      console.log('No orphaned loader documents found');
+      return { cleaned: 0, orphaned: [] };
+    }
+
+    console.warn(
+      `Found ${orphanedLoaders.length} orphaned loader documents:`,
+      orphanedLoaders,
+    );
+
+    // Delete orphaned loaders
+    for (const orphan of orphanedLoaders) {
+      await deleteDocument(true, orphan.id, orphan?.url);
+    }
+
+    return { cleaned: orphanedLoaders.length, orphaned: orphanedLoaders };
+  } catch (error) {
+    console.error('Error cleaning up orphaned loaders:', error);
+    throw error;
   }
 };
