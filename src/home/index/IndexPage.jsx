@@ -89,6 +89,28 @@ function IndexPage() {
   );
 
   /* ------------------------------------------------------------------ */
+  /* PHONE VIEW: LOAD ALL ORIGINALS                                     */
+  /* ------------------------------------------------------------------ */
+
+  useEffect(() => {
+    if (!phoneView || !visibleImages.length) return;
+
+    const urls = {};
+    for (const image of visibleImages) {
+      if (!originalUrls[image.order]) {
+        const original = getOriginalForOrder(image.order);
+        if (original?.url) {
+          urls[image.order] = original.url;
+        }
+      }
+    }
+
+    if (Object.keys(urls).length > 0) {
+      setOriginalUrls(prev => ({ ...prev, ...urls }));
+    }
+  }, [phoneView, visibleImages, getOriginalForOrder]);
+
+  /* ------------------------------------------------------------------ */
   /* INFINITE SCROLL                                                     */
   /* ------------------------------------------------------------------ */
 
