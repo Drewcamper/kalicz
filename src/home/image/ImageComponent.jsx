@@ -1,17 +1,30 @@
+import { useState } from 'react';
 import './styles.css';
 
-export const ImageComponent = ({ image, style }) => {
-  const handleContextMenu = e => e.preventDefault(); // disables right-click menu
-  const handleDragStart = e => e.preventDefault(); // prevents drag-and-drop download
+export const ImageComponent = ({ image, originalUrl, style }) => {
+  const [loadedUrl, setLoadedUrl] = useState(null);
+
+  const isOriginalReady = originalUrl && loadedUrl === originalUrl;
+
+  const handleContextMenu = e => e.preventDefault();
+  const handleDragStart = e => e.preventDefault();
 
   return (
-    <img
-      src={image?.url}
-      alt={image?.name || ''}
+    <div
+      className='image-component-wrapper'
       style={style}
-      className='image-component'
       onContextMenu={handleContextMenu}
-      onDragStart={handleDragStart}
-    />
+      onDragStart={handleDragStart}>
+      <img src={image?.url} alt={image?.name || ''} className='image-component' />
+      {originalUrl && (
+        <img
+          src={originalUrl}
+          alt={image?.name || ''}
+          className='image-component image-component--original'
+          style={{ visibility: isOriginalReady ? 'visible' : 'hidden' }}
+          onLoad={() => setLoadedUrl(originalUrl)}
+        />
+      )}
+    </div>
   );
 };

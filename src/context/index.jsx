@@ -4,65 +4,34 @@ import { toast } from 'react-toastify';
 
 const ImageContext = createContext();
 
-// Helper function to preload images
-const preloadImages = imageUrls => {
-  return Promise.all(
-    imageUrls.map(url => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = url;
-      });
-    }),
-  );
-};
-
 export const ImageProvider = ({ children }) => {
   const [loaderImages, setLoaderImages] = useState([]);
   const [originalImages, setOriginalImages] = useState([]);
-  const [displayImages, setDisplayImages] = useState([]); // Images currently being displayed
+  const [originalImagesLookup, setOriginalImagesLookup] = useState({});
+  const [loaderImagesLookup, setLoaderImagesLookup] = useState({});
   const [phoneView, setPhoneView] = useState(false);
-  const [isLoadingOriginal, setIsLoadingOriginal] = useState(false);
-  const [hasLoadedOriginal, setHasLoadedOriginal] = useState(false);
-  const [originalImagesLoaded, setOriginalImagesLoaded] = useState(false);
 
   const orderImages = images => {
     return [...images].sort((a, b) => a.order - b.order);
   };
 
-  const refetchImages = async () => {
-    try {
-      setIsLoadingOriginal(true);
-      const fetchedImages = await fetchImages(false);
-      const orderedImages = orderImages(fetchedImages);
-
-      // Preload images before updating state
-      await preloadImages(orderedImages.map(img => img.url));
-
-      setOriginalImages(orderedImages);
-      setDisplayImages(orderedImages);
-      setHasLoadedOriginal(true);
-      setOriginalImagesLoaded(true);
-    } catch (error) {
-      toast.error(error.message || 'Error refetching images');
-    } finally {
-      setIsLoadingOriginal(false);
-    }
+  // Build lookup map from array of images: order -> image object
+  const buildLookupMap = images => {
+    return images.reduce((map, img) => {
+      map[img.order] = img;
+      return map;
+    }, {});
   };
 
-  // Step 1: Fetch loader images immediately
+  // Fetch all loader images as a batch on mount
+  // (frontend will handle any order via lookup system)
   useEffect(() => {
     const loadLoaderImages = async () => {
       try {
         const loaderImages = await fetchImages(true);
         const orderedLoaderImages = orderImages(loaderImages);
-
-        // Preload loader images too
-        await preloadImages(orderedLoaderImages.map(img => img.url));
-
         setLoaderImages(orderedLoaderImages);
-        setDisplayImages(orderedLoaderImages); // Start with loader images
+        setLoaderImagesLookup(buildLookupMap(orderedLoaderImages));
       } catch (error) {
         toast.error(error.message || 'Error loading loader images');
       }
@@ -71,53 +40,33 @@ export const ImageProvider = ({ children }) => {
     loadLoaderImages();
   }, []);
 
-  // Step 2: Fetch and preload original images after loader images are displayed
+  // Fetch all original images once (lazy-loaded per viewport item)
+  // Build lookup map for fast retrieval by order field
   useEffect(() => {
-    if (loaderImages.length === 0) return;
-
-    const loadOriginalImages = async () => {
-      setIsLoadingOriginal(true);
+    const loadOriginalImagesLookup = async () => {
       try {
-        // Fetch original images
         const originalImages = await fetchImages(false);
         const orderedOriginalImages = orderImages(originalImages);
-
-        // Store original images but don't display yet
         setOriginalImages(orderedOriginalImages);
-        setHasLoadedOriginal(true);
-
-        // Preload all original images before switching
-        await preloadImages(orderedOriginalImages.map(img => img.url));
-
-        // Mark that original images are fully loaded
-        setOriginalImagesLoaded(true);
+        const lookup = buildLookupMap(orderedOriginalImages);
+        setOriginalImagesLookup(lookup);
       } catch (error) {
         toast.error(error.message || 'Error loading original images');
-        setIsLoadingOriginal(false);
       }
     };
 
-    // Start loading original images after loader images are displayed
-    const timer = setTimeout(() => {
-      loadOriginalImages();
-    }, 500);
+    loadOriginalImagesLookup();
+  }, []);
 
-    return () => clearTimeout(timer);
-  }, [loaderImages]);
+  /* -------------------- Get Original by Order -------------------- */
 
-  // Step 3: Switch to original images only after they're fully loaded
-  useEffect(() => {
-    if (originalImagesLoaded && originalImages.length > 0) {
-      // Small delay to ensure smooth transition
-      setTimeout(() => {
-        setDisplayImages([...originalImages]);
-        setIsLoadingOriginal(false);
+  const getOriginalForOrder = order => {
+    return originalImagesLookup[order] || null;
+  };
 
-        // Reset the flag for future updates
-        setOriginalImagesLoaded(false);
-      }, 300);
-    }
-  }, [originalImagesLoaded, originalImages]);
+  const getLoaderForOrder = order => {
+    return loaderImagesLookup[order] || null;
+  };
 
   /* ----------------------------- Responsive ----------------------------- */
 
@@ -131,24 +80,18 @@ export const ImageProvider = ({ children }) => {
     return () => window.removeEventListener('resize', updateView);
   }, []);
 
-  const handleSetImages = newImages => {
-    setOriginalImages(newImages);
-    setDisplayImages(newImages);
-  };
-
   return (
     <ImageContext.Provider
       value={{
-        images: displayImages, // Use displayImages as the current images
-        setImages: handleSetImages, // For admin page to update images
+        images: loaderImages,
+        setImages: setLoaderImages,
+        getOriginalForOrder,
+        getLoaderForOrder,
         loaderImages,
         originalImages,
-        setOriginalImages, // Direct setter for originalImages
+        setOriginalImages,
         phoneView,
         setPhoneView,
-        refetchImages,
-        isLoadingOriginal,
-        hasLoadedOriginal,
       }}>
       {children}
     </ImageContext.Provider>

@@ -28,7 +28,7 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
               }
             },
             'image',
-            quality
+            quality,
           );
         } catch (err) {
           console.error('[Resize] Error drawing image:', err);
@@ -52,83 +52,77 @@ export const getMaxOrder = images => {
 
 export const handleUpload = async ({
   file,
-  index,
-  // maxOrder,
-  images,
+  order,
   onUpload,
   setProgress,
-  refetch,
+  onImageUploaded,
 }) => {
   if (!file) return;
 
   const storage = getStorage();
-  const maxOrder = getMaxOrder(images);
-  const order = maxOrder + index + 1;
 
-  const baseName = file?.name.replace(/\.[^/.]+$/, '');
-  const extension = file?.name.split('.').pop();
+  toast.info(`Uploading ${file.name}...`);
 
+  const baseName = file.name.replace(/\.[^/.]+$/, '');
+  const extension = file.name.split('.').pop();
+
+  // === Upload original ===
   const originalPath = `images/original/${baseName}.${extension}`;
   const originalRef = ref(storage, originalPath);
   const originalUploadTask = uploadBytesResumable(originalRef, file);
 
-  originalUploadTask.on(
-    'state_changed',
-    snapshot => {
-      const progressPercent = Math.round(
-        (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-      );
-      setProgress(prev => ({ ...prev, [index]: progressPercent }));
-    },
-    error => {
-      console.error('[Upload] Original upload failed:', error);
-      toast.error('Original upload error');
-    },
-    async () => {
-      try {
-        const originalURL = await getDownloadURL(originalUploadTask.snapshot.ref);
+  // Track progress
+  originalUploadTask.on('state_changed', snapshot => {
+    const progressPercent = Math.round(
+      (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
+    );
+    setProgress(prev => ({ ...prev, [order]: progressPercent }));
+  });
 
-        //et Original Image Dimensions
-        const img = new Image();
-        img.src = originalURL;
-        await new Promise(resolve => (img.onload = resolve));
-        const originalHeight = img.height;
-        const originalWidth = img.width;
+  // Await upload completion (UploadTask is thenable)
+  await originalUploadTask;
 
-        const originalImage = {
-          url: originalURL,
-          name: `${baseName}.${extension}`,
-          order,
-          originalHeight,
-          originalWidth,
-        };
-        await createDocument(false, originalImage);
+  const originalURL = await getDownloadURL(originalUploadTask.snapshot.ref);
 
-        // === Resize and Upload ===
+  // Get original image dimensions
+  const img = new Image();
+  img.src = originalURL;
+  await new Promise((resolve, reject) => {
+    img.onload = resolve;
+    img.onerror = reject;
+  });
+  const originalHeight = img.height;
+  const originalWidth = img.width;
 
-        const resizedBlob = await imageReducer(file, { maxWidth: 480, quality: 0.5 });
+  const originalImage = {
+    url: originalURL,
+    name: `${baseName}.${extension}`,
+    order,
+    originalHeight,
+    originalWidth,
+  };
+  const documentId = await createDocument(false, originalImage);
 
-        const resizedPath = `images/loader/${baseName}.${extension}`;
-        const resizedRef = ref(storage, resizedPath);
-        const resizedUploadTask = await uploadBytesResumable(resizedRef, resizedBlob);
-        const resizedURL = await getDownloadURL(resizedUploadTask.ref);
+  // === Resize and upload loader ===
+  const resizedBlob = await imageReducer(file, { maxWidth: 480, quality: 0.5 });
 
-        const resizedImage = {
-          url: resizedURL,
-          name: `${baseName}.${extension}`,
-          order,
-          originalHeight,
-          originalWidth,
-        };
+  const resizedPath = `images/loader/${baseName}.${extension}`;
+  const resizedRef = ref(storage, resizedPath);
+  const resizedUploadTask = uploadBytesResumable(resizedRef, resizedBlob);
+  await resizedUploadTask;
+  const resizedURL = await getDownloadURL(resizedUploadTask.snapshot.ref);
 
-        await createDocument(true, resizedImage);
+  const resizedImage = {
+    url: resizedURL,
+    name: `${baseName}.${extension}`,
+    order,
+    originalHeight,
+    originalWidth,
+  };
+  await createDocument(true, resizedImage);
 
-        onUpload();
-        refetch();
-      } catch (error) {
-        console.error('[Upload] Error in upload flow:', error);
-        toast.error('Error uploading images');
-      }
-    }
-  );
+  // Notify parent — this now fires in sequence because handleUpload is awaited
+  const uploadedImage = { ...originalImage, id: documentId };
+  onImageUploaded?.(uploadedImage);
+  onUpload?.();
 };

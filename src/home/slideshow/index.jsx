@@ -4,9 +4,10 @@ import { ImageComponent } from '../image/ImageComponent';
 import { styles } from './styles';
 
 export const Slideshow = () => {
-  const { images } = useImageContext();
+  const { images, getOriginalForOrder } = useImageContext();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorStyle, setCursorStyle] = useState('');
+  const [originalUrl, setOriginalUrl] = useState(null);
   const containerRef = useRef(null);
 
   const goNext = () => {
@@ -38,8 +39,8 @@ export const Slideshow = () => {
     const svgString = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}" viewBox="0 0 ${svgSize} ${svgSize}">
       <text x="${svgSize / 2}" y="${
-      svgSize / 2
-    }" dominant-baseline="middle" text-anchor="middle" font-size="${fontSize}" fill="black">
+        svgSize / 2
+      }" dominant-baseline="middle" text-anchor="middle" font-size="${fontSize}" fill="black">
         ${cursorText}
       </text>
     </svg>
@@ -77,6 +78,24 @@ export const Slideshow = () => {
     };
   }, [images]);
 
+  // Load original image when index changes
+  useEffect(() => {
+    if (images.length === 0) {
+      setOriginalUrl(null);
+      return;
+    }
+
+    const currentImage = images[currentIndex];
+
+    if (!currentImage?.order) {
+      setOriginalUrl(null);
+      return;
+    }
+
+    const original = getOriginalForOrder(currentImage.order);
+    setOriginalUrl(original?.url || null);
+  }, [currentIndex, images, getOriginalForOrder]);
+
   const currentImage = images[currentIndex];
 
   return (
@@ -87,6 +106,7 @@ export const Slideshow = () => {
       onClick={handleClick}>
       <ImageComponent
         image={currentImage}
+        originalUrl={originalUrl}
         style={{
           ...styles.image,
           cursor: cursorStyle,

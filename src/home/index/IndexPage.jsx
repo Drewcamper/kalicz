@@ -7,10 +7,11 @@ import { InfiniteScrollSentinel } from './infiniteScroll';
 import './styles.css';
 
 function IndexPage() {
-  const { images, phoneView, isLoadingOriginal, hasLoadedOriginal } = useImageContext();
+  const { images, getOriginalForOrder, phoneView } = useImageContext();
 
   const [visibleImages, setVisibleImages] = useState([]);
   const [animatedIds, setAnimatedIds] = useState(new Set());
+  const [originalUrls, setOriginalUrls] = useState({}); // Map of order -> original URL
   const [previewImage, setPreviewImage] = useState(null);
 
   const animationObserverRef = useRef(null);
@@ -18,23 +19,25 @@ function IndexPage() {
   const containerRef = useRef(null);
 
   /* ------------------------------------------------------------------ */
-  /* RESET visibleImages WHEN ORIGINALS LOAD                             */
+  /* INITIALIZE visibleImages FROM LOADERS                              */
   /* ------------------------------------------------------------------ */
 
   useEffect(() => {
-    if (!images?.length) return;
-
-    // Loader → Original transition
-    if (hasLoadedOriginal && !isLoadingOriginal) {
-      setVisibleImages(images.slice(0, phoneView ? images.length : 6));
-      setAnimatedIds(new Set());
-
-      if (animationObserverRef.current) {
-        animationObserverRef.current.disconnect();
-        animationObserverRef.current = null;
-      }
+    if (!images?.length) {
+      return;
     }
-  }, [images, hasLoadedOriginal, isLoadingOriginal, phoneView]);
+
+    const displayCount = phoneView ? images.length : 6;
+
+    // On initial load, show loaders immediately
+    setVisibleImages(images.slice(0, displayCount));
+    setAnimatedIds(new Set());
+
+    if (animationObserverRef.current) {
+      animationObserverRef.current.disconnect();
+      animationObserverRef.current = null;
+    }
+  }, [images, phoneView]);
 
   /* ------------------------------------------------------------------ */
   /* ANIMATION HANDLERS                                                  */
@@ -57,16 +60,40 @@ function IndexPage() {
   }, []);
 
   /* ------------------------------------------------------------------ */
+  /* LAZY-LOAD ORIGINAL IMAGE WHEN VISIBLE                              */
+  /* ------------------------------------------------------------------ */
+
+  const handleImageVisible = useCallback(
+    element => {
+      const order = parseInt(element.dataset.imageOrder, 10);
+      if (isNaN(order)) {
+        return;
+      }
+
+      // Check if already cached
+      if (originalUrls[order]) {
+        return; // Already loaded
+      }
+
+      // Get original image URL for this order and pass it to ImageComponent
+      // The actual image binary is fetched only once by the <img> element
+      const originalImage = getOriginalForOrder(order);
+      if (originalImage?.url) {
+        setOriginalUrls(prev => ({
+          ...prev,
+          [order]: originalImage.url,
+        }));
+      }
+    },
+    [getOriginalForOrder, originalUrls], // Include originalUrls to check cache
+  );
+
+  /* ------------------------------------------------------------------ */
   /* INFINITE SCROLL                                                     */
   /* ------------------------------------------------------------------ */
 
   useEffect(() => {
-    if (
-      phoneView ||
-      isLoadingOriginal ||
-      !images.length ||
-      visibleImages.length >= images.length
-    ) {
+    if (phoneView || !images.length || visibleImages.length >= images.length) {
       return;
     }
 
@@ -85,14 +112,14 @@ function IndexPage() {
     });
 
     return () => infiniteScrollRef.current?.disconnect();
-  }, [images, visibleImages.length, phoneView, isLoadingOriginal]);
+  }, [images, visibleImages.length, phoneView]);
 
   /* ------------------------------------------------------------------ */
   /* ANIMATION OBSERVER                                                  */
   /* ------------------------------------------------------------------ */
 
   useEffect(() => {
-    if (phoneView || isLoadingOriginal || !visibleImages.length) {
+    if (phoneView || !visibleImages.length) {
       animationObserverRef.current?.disconnect();
       animationObserverRef.current = null;
       return;
@@ -107,14 +134,15 @@ function IndexPage() {
       animationObserverRef.current.observe(item, {
         onEnter: handleAnimateEnter,
         onExit: handleAnimateExit,
-      })
+        onVisible: handleImageVisible, // NEW: Lazy-load original when visible
+      }),
     );
   }, [
     visibleImages,
     phoneView,
-    isLoadingOriginal,
     handleAnimateEnter,
     handleAnimateExit,
+    handleImageVisible,
   ]);
 
   /* ------------------------------------------------------------------ */
@@ -137,10 +165,10 @@ function IndexPage() {
       {phoneView ? (
         visibleImages.map(image => (
           <div
-            key={`${image.id}-${isLoadingOriginal ? 'loader' : 'original'}`}
+            key={`${image.id}-loader`}
             className='phoneView-image-item'
             onClick={() => setPreviewImage(image)}>
-            <ImageComponent image={image} />
+            <ImageComponent image={image} originalUrl={originalUrls[image.order]} />
           </div>
         ))
       ) : (
@@ -150,16 +178,17 @@ function IndexPage() {
             className='my-masonry-grid'
             columnClassName='my-masonry-grid_column'>
             {visibleImages.map(image => {
-              const id = `${image.id}-${isLoadingOriginal ? 'loader' : 'original'}`;
+              const id = `${image.id}`;
               return (
                 <div
                   key={id}
                   data-image-id={id}
+                  data-image-order={image.order}
                   className={`masonry-item ${
                     animatedIds.has(id) ? 'rise-animation' : ''
                   }`}
                   onClick={() => setPreviewImage(image)}>
-                  <ImageComponent image={image} />
+                  <ImageComponent image={image} originalUrl={originalUrls[image.order]} />
                 </div>
               );
             })}
@@ -169,7 +198,11 @@ function IndexPage() {
 
       {previewImage && (
         <div className='preview-overlay' onClick={() => setPreviewImage(null)}>
-          <img src={previewImage.url} alt='Preview' className='preview-image' />
+          <img
+            src={originalUrls[previewImage.order] || previewImage.url}
+            alt='Preview'
+            className='preview-image'
+          />
         </div>
       )}
     </div>

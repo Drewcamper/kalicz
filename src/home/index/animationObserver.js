@@ -10,6 +10,7 @@ export class AnimationObserver {
     this.scrollDirection = 'down';
     this.lastScrollY = 0;
     this.callbacks = new Map();
+    this.visibleSet = new Set(); // Track what's currently visible
     this.hasUserScrolled = false; // NEW: Track if user has scrolled
 
     this.initScrollHandler();
@@ -24,7 +25,7 @@ export class AnimationObserver {
         this.lastScrollY = currentScrollY;
         this.hasUserScrolled = true; // NEW: Set to true on first scroll
       },
-      { passive: true }
+      { passive: true },
     );
   }
 
@@ -35,6 +36,14 @@ export class AnimationObserver {
         const callback = this.callbacks.get(id);
 
         if (entry.isIntersecting) {
+          // Track visibility
+          this.visibleSet.add(id);
+
+          // Call onVisible callback (for lazy-loading originals)
+          if (callback?.onVisible) {
+            callback.onVisible(entry.target);
+          }
+
           // Only trigger onEnter if user has scrolled down
           if (
             this.scrollDirection === 'down' &&
@@ -48,6 +57,9 @@ export class AnimationObserver {
             // Don't trigger animation
           }
         } else {
+          // Track visibility
+          this.visibleSet.delete(id);
+
           if (this.scrollDirection === 'up' && callback?.onExit) {
             callback.onExit(id);
           }
@@ -74,6 +86,7 @@ export class AnimationObserver {
     const id = element.dataset.imageId;
     if (id) {
       this.callbacks.delete(id);
+      this.visibleSet.delete(id);
       this.observer.unobserve(element);
     }
   }
@@ -84,5 +97,6 @@ export class AnimationObserver {
       this.observer = null;
     }
     this.callbacks.clear();
+    this.visibleSet.clear();
   }
 }

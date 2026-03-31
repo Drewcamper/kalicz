@@ -29,7 +29,6 @@ export class InfiniteScrollSentinel {
       if (container) {
         container.appendChild(this.sentinel);
       } else {
-        console.error('❌ No container to append sentinel to');
         return;
       }
     }

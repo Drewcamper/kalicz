@@ -2,33 +2,18 @@ import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
 import { styles } from './styles';
-import { fetchCollection } from '../../../services';
-import { handleUpload, getMaxOrder } from './utils'; // Import getMaxOrder
+import { handleUpload, getMaxOrder } from './utils';
 import { useImageContext } from '../../../context/index';
 
 const ImageUpload = ({ onUpload }) => {
-  const { images, setImages } = useImageContext();
+  const { originalImages, setOriginalImages } = useImageContext();
   const [selectedImages, setSelectedImages] = useState([]);
   const [progress, setProgress] = useState({});
   const [maxOrder, setMaxOrder] = useState(0);
 
   useEffect(() => {
-    // Calculate the actual maximum order number from existing images
-    const calculateMaxOrder = () => {
-      if (images.length === 0) {
-        setMaxOrder(0);
-        return;
-      }
-      const currentMaxOrder = getMaxOrder(images);
-      setMaxOrder(currentMaxOrder);
-    };
-    calculateMaxOrder();
-  }, [images]);
-
-  const refetch = async () => {
-    const newImages = await fetchCollection(false);
-    setImages(newImages);
-  };
+    setMaxOrder(getMaxOrder(originalImages));
+  }, [originalImages]);
 
   const handleDrop = async (acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) {
@@ -39,20 +24,36 @@ const ImageUpload = ({ onUpload }) => {
     if (acceptedFiles.length > 0) {
       setSelectedImages(acceptedFiles);
 
-      // Process files sequentially to maintain correct order numbering
+      let currentMaxOrder = getMaxOrder(originalImages);
+
       for (let i = 0; i < acceptedFiles.length; i++) {
         const file = acceptedFiles[i];
-        await handleUpload({
-          file,
-          index: i,
-          images, // Pass the current images array
-          onUpload: () => {
-            onUpload?.();
-          },
-          setProgress,
-          refetch,
-        });
+        const order = currentMaxOrder + 1;
+        currentMaxOrder = order;
+
+        try {
+          await handleUpload({
+            file,
+            order,
+            onUpload: () => {
+              onUpload?.();
+            },
+            setProgress,
+            onImageUploaded: newImage => {
+              setOriginalImages(prev => {
+                const updated = [...prev, newImage];
+                return updated.sort((a, b) => a.order - b.order);
+              });
+            },
+          });
+        } catch (error) {
+          console.error('[ImageUpload] Upload failed for', file.name, error);
+          toast.error(`Failed to upload ${file.name}`);
+        }
       }
+
+      setSelectedImages([]);
+      setProgress({});
     }
   };
 
@@ -72,17 +73,20 @@ const ImageUpload = ({ onUpload }) => {
       </div>
       {selectedImages.length > 0 && (
         <div style={styles.scrollableContainer}>
-          {selectedImages.map((file, index) => (
-            <div key={index} style={styles.imageContainer}>
-              <p>{file?.name}</p>
-              <img
-                src={URL?.createObjectURL(file)}
-                alt={file?.name}
-                style={{ width: '90%' }}
-              />
-              {progress[index] || 0}%
-            </div>
-          ))}
+          {selectedImages.map((file, index) => {
+            const order = maxOrder + index + 1;
+            return (
+              <div key={index} style={styles.imageContainer}>
+                <p>{file?.name}</p>
+                <img
+                  src={URL?.createObjectURL(file)}
+                  alt={file?.name}
+                  style={{ width: '90%' }}
+                />
+                {progress[order] || 0}%
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
