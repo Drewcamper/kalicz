@@ -75,7 +75,6 @@ export const cleanupOrphanedLoaders = async () => {
     });
 
     if (orphanedLoaders.length === 0) {
-      console.log('No orphaned loader documents found');
       return { cleaned: 0, orphaned: [] };
     }
 

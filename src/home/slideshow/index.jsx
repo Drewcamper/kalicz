@@ -7,15 +7,32 @@ export const Slideshow = () => {
   const { images, getOriginalForOrder } = useImageContext();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorStyle, setCursorStyle] = useState('');
-  const [originalUrl, setOriginalUrl] = useState(null);
   const containerRef = useRef(null);
 
+  const getOriginalUrl = index => {
+    const img = images[index];
+    if (!img?.order) return null;
+    return getOriginalForOrder(img.order)?.url || null;
+  };
+
+  const [originalUrl, setOriginalUrl] = useState(() => getOriginalUrl(0));
+
   const goNext = () => {
-    setCurrentIndex(prev => (prev + 1) % images.length);
+    setCurrentIndex(prev => {
+      const next = (prev + 1) % images.length;
+      const nextOriginal = getOriginalUrl(next);
+      setOriginalUrl(nextOriginal);
+      return next;
+    });
   };
 
   const goPrev = () => {
-    setCurrentIndex(prev => (prev - 1 + images.length) % images.length);
+    setCurrentIndex(prev => {
+      const next = (prev - 1 + images.length) % images.length;
+      const nextOriginal = getOriginalUrl(next);
+      setOriginalUrl(nextOriginal);
+      return next;
+    });
   };
 
   const encodeToBase64 = str => {
@@ -85,15 +102,7 @@ export const Slideshow = () => {
       return;
     }
 
-    const currentImage = images[currentIndex];
-
-    if (!currentImage?.order) {
-      setOriginalUrl(null);
-      return;
-    }
-
-    const original = getOriginalForOrder(currentImage.order);
-    setOriginalUrl(original?.url || null);
+    setOriginalUrl(getOriginalUrl(currentIndex));
   }, [currentIndex, images, getOriginalForOrder]);
 
   const currentImage = images[currentIndex];
