@@ -9,7 +9,6 @@ function DisplayImage({ image }) {
   return (
     <img
       src={displayUrl}
-      alt={image?.name}
       style={styles.image}
       onError={e => (e.target.src = 'https://via.placeholder.com/150')}
     />

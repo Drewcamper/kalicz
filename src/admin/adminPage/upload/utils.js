@@ -2,7 +2,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/
 import { toast } from 'react-toastify';
 import { createDocument } from '../../../services';
 
-const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
+const imageReducer = (file, { maxDimension = 800, quality = 0.7 } = {}) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -10,9 +10,10 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
       const image = new Image();
       image.onload = () => {
         try {
-          const scale = maxWidth / image.width;
+          const longestSide = Math.max(image.width, image.height);
+          const scale = Math.min(maxDimension / longestSide, 1);
           const canvas = document.createElement('canvas');
-          canvas.width = maxWidth;
+          canvas.width = image.width * scale;
           canvas.height = image.height * scale;
 
           const ctx = canvas.getContext('2d');
@@ -27,7 +28,7 @@ const imageReducer = (file, { maxWidth = 800, quality = 0.7 } = {}) => {
                 reject(new Error('Canvas is empty or toBlob failed'));
               }
             },
-            'image',
+            'image/avif',
             quality,
           );
         } catch (err) {
@@ -104,11 +105,14 @@ export const handleUpload = async ({
   const documentId = await createDocument(false, originalImage);
 
   // === Resize and upload loader ===
-  const resizedBlob = await imageReducer(file, { maxWidth: 480, quality: 0.5 });
+  const resizedBlob = await imageReducer(file, { maxDimension: 320, quality: 0.4 });
 
-  const resizedPath = `images/loader/${baseName}.${extension}`;
+  const resizedPath = `images/loader/${baseName}.avif`;
   const resizedRef = ref(storage, resizedPath);
-  const resizedUploadTask = uploadBytesResumable(resizedRef, resizedBlob);
+  const resizedUploadTask = uploadBytesResumable(resizedRef, resizedBlob, {
+    contentType: 'image/avif',
+    cacheControl: 'public, max-age=31536000',
+  });
   await resizedUploadTask;
   const resizedURL = await getDownloadURL(resizedUploadTask.snapshot.ref);
 

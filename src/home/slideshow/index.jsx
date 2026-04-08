@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useImageContext } from '../../context';
 import { ImageComponent } from '../image/ImageComponent';
 import { styles } from './styles';
@@ -8,6 +8,7 @@ export const Slideshow = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorStyle, setCursorStyle] = useState('');
   const containerRef = useRef(null);
+  const prefetchedRef = useRef(new Set());
 
   const getOriginalUrl = index => {
     const img = images[index];
@@ -16,6 +17,27 @@ export const Slideshow = () => {
   };
 
   const [originalUrl, setOriginalUrl] = useState(() => getOriginalUrl(0));
+
+  // Prefetch images in the sliding window around the given index
+  const prefetchWindow = useCallback(
+    centerIndex => {
+      if (!images.length) return;
+      const len = images.length;
+      // Window: 1 behind, current, 3 ahead
+      const offsets = [-1, 0, 1, 2, 3];
+      for (const offset of offsets) {
+        const idx = (((centerIndex + offset) % len) + len) % len;
+        if (prefetchedRef.current.has(idx)) continue;
+        const url = getOriginalUrl(idx);
+        if (url) {
+          const img = new Image();
+          img.src = url;
+          prefetchedRef.current.add(idx);
+        }
+      }
+    },
+    [images, getOriginalForOrder],
+  );
 
   const goNext = () => {
     setCurrentIndex(prev => {
@@ -95,7 +117,7 @@ export const Slideshow = () => {
     };
   }, [images]);
 
-  // Load original image when index changes
+  // Load original image and prefetch window when index changes
   useEffect(() => {
     if (images.length === 0) {
       setOriginalUrl(null);
@@ -103,7 +125,8 @@ export const Slideshow = () => {
     }
 
     setOriginalUrl(getOriginalUrl(currentIndex));
-  }, [currentIndex, images, getOriginalForOrder]);
+    prefetchWindow(currentIndex);
+  }, [currentIndex, images, getOriginalForOrder, prefetchWindow]);
 
   const currentImage = images[currentIndex];
 

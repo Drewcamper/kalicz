@@ -78,11 +78,7 @@ const ImageUpload = ({ onUpload }) => {
             return (
               <div key={index} style={styles.imageContainer}>
                 <p>{file?.name}</p>
-                <img
-                  src={URL?.createObjectURL(file)}
-                  alt={file?.name}
-                  style={{ width: '90%' }}
-                />
+                <img src={URL?.createObjectURL(file)} style={{ width: '90%' }} />
                 {progress[order] || 0}%
               </div>
             );

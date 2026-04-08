@@ -33,8 +33,9 @@ export const ImageComponent = ({ image, originalUrl, style }) => {
       onDragStart={handleDragStart}>
       <img
         src={image?.url}
-        alt={image?.name || ''}
         className='image-component'
+        loading='lazy'
+        decoding='async'
         onLoad={() => {
           setLoaderReady(true);
         }}
@@ -42,8 +43,9 @@ export const ImageComponent = ({ image, originalUrl, style }) => {
       {originalUrl && (
         <img
           src={originalUrl}
-          alt={image?.name || ''}
           className='image-component image-component--original'
+          loading='lazy'
+          decoding='async'
           style={{ visibility: showOriginalOverlay ? 'visible' : 'hidden' }}
           onLoad={() => {
             setLoadedUrl(originalUrl);

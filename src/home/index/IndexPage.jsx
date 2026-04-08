@@ -222,7 +222,6 @@ function IndexPage() {
         <div className='preview-overlay' onClick={() => setPreviewImage(null)}>
           <img
             src={originalUrls[previewImage.order] || previewImage.url}
-            alt='Preview'
             className='preview-image'
           />
         </div>
