@@ -11,7 +11,7 @@ import { styles } from './styles';
 const firestore = getFirestore();
 
 export const ShowImages = () => {
-  const { originalImages, setOriginalImages } = useImageContext();
+  const { originalImages, setOriginalImages, refreshLoaderImages } = useImageContext();
   const images = originalImages;
   const setImages = setOriginalImages;
   const [error, setError] = useState(null);
@@ -67,6 +67,7 @@ export const ShowImages = () => {
       }
 
       await batch.commit();
+      await refreshLoaderImages();
     } catch (error) {
       setError(error.message);
       // Optionally: revert local state here if needed
@@ -138,6 +139,7 @@ export const ShowImages = () => {
       }
 
       await batch.commit();
+      await refreshLoaderImages();
       setEditingIndex(null);
       setNewIndex(null);
       toast.success('Order updated successfully');
@@ -185,6 +187,7 @@ export const ShowImages = () => {
               setImages,
               firestore,
               setError,
+              refreshLoaderImages,
             });
           } catch (error) {
             console.error('Drag error:', error);

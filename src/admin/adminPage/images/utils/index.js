@@ -13,7 +13,7 @@ export const chunkImages = arr => {
 };
 
 export const handleOnDragEnd = async params => {
-  const { result, images, setImages, firestore, setError } = params;
+  const { result, images, setImages, firestore, setError, refreshLoaderImages } = params;
   const { source, destination } = result;
 
   if (!destination) return;
@@ -59,6 +59,7 @@ export const handleOnDragEnd = async params => {
     }
 
     await batch.commit();
+    if (refreshLoaderImages) await refreshLoaderImages();
     toast.success('Order updated successfully');
   } catch (error) {
     console.error('Matrix drag error:', error);

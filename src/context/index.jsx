@@ -31,7 +31,6 @@ export const ImageProvider = ({ children }) => {
         const loaderImages = await fetchImages(true);
         const orderedLoaderImages = orderImages(loaderImages);
         setLoaderImages(orderedLoaderImages);
-        setLoaderImagesLookup(buildLookupMap(orderedLoaderImages));
       } catch (error) {
         toast.error(error.message || 'Error loading loader images');
       }
@@ -48,8 +47,6 @@ export const ImageProvider = ({ children }) => {
         const originalImages = await fetchImages(false);
         const orderedOriginalImages = orderImages(originalImages);
         setOriginalImages(orderedOriginalImages);
-        const lookup = buildLookupMap(orderedOriginalImages);
-        setOriginalImagesLookup(lookup);
       } catch (error) {
         toast.error(error.message || 'Error loading original images');
       }
@@ -57,6 +54,24 @@ export const ImageProvider = ({ children }) => {
 
     loadOriginalImagesLookup();
   }, []);
+
+  // Rebuild lookup maps whenever image arrays change
+  useEffect(() => {
+    setLoaderImagesLookup(buildLookupMap(loaderImages));
+  }, [loaderImages]);
+
+  useEffect(() => {
+    setOriginalImagesLookup(buildLookupMap(originalImages));
+  }, [originalImages]);
+
+  const refreshLoaderImages = async () => {
+    try {
+      const loaders = await fetchImages(true);
+      setLoaderImages(orderImages(loaders));
+    } catch (error) {
+      toast.error(error.message || 'Error refreshing loader images');
+    }
+  };
 
   /* -------------------- Get Original by Order -------------------- */
 
@@ -90,6 +105,7 @@ export const ImageProvider = ({ children }) => {
         loaderImages,
         originalImages,
         setOriginalImages,
+        refreshLoaderImages,
         phoneView,
         setPhoneView,
       }}>
