@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useImageContext } from '../../context';
 import { ImageComponent } from '../image/ImageComponent';
 import { styles } from './styles';
@@ -8,7 +8,6 @@ export const Slideshow = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorStyle, setCursorStyle] = useState('');
   const containerRef = useRef(null);
-  const prefetchedRef = useRef(new Set());
 
   const getOriginalUrl = index => {
     const img = images[index];
@@ -16,45 +15,12 @@ export const Slideshow = () => {
     return getOriginalForOrder(img.order)?.url || null;
   };
 
-  const [originalUrl, setOriginalUrl] = useState(() => getOriginalUrl(0));
-
-  // Prefetch images in the sliding window around the given index
-  const prefetchWindow = useCallback(
-    centerIndex => {
-      if (!images.length) return;
-      const len = images.length;
-      // Window: 1 behind, current, 3 ahead
-      const offsets = [-1, 0, 1, 2, 3];
-      for (const offset of offsets) {
-        const idx = (((centerIndex + offset) % len) + len) % len;
-        if (prefetchedRef.current.has(idx)) continue;
-        const url = getOriginalUrl(idx);
-        if (url) {
-          const img = new Image();
-          img.src = url;
-          prefetchedRef.current.add(idx);
-        }
-      }
-    },
-    [images, getOriginalForOrder],
-  );
-
   const goNext = () => {
-    setCurrentIndex(prev => {
-      const next = (prev + 1) % images.length;
-      const nextOriginal = getOriginalUrl(next);
-      setOriginalUrl(nextOriginal);
-      return next;
-    });
+    setCurrentIndex(prev => (prev + 1) % images.length);
   };
 
   const goPrev = () => {
-    setCurrentIndex(prev => {
-      const next = (prev - 1 + images.length) % images.length;
-      const nextOriginal = getOriginalUrl(next);
-      setOriginalUrl(nextOriginal);
-      return next;
-    });
+    setCurrentIndex(prev => (prev - 1 + images.length) % images.length);
   };
 
   const encodeToBase64 = str => {
@@ -117,18 +83,20 @@ export const Slideshow = () => {
     };
   }, [images]);
 
-  // Load original image and prefetch window when index changes
-  useEffect(() => {
-    if (images.length === 0) {
-      setOriginalUrl(null);
-      return;
+  // Pool: current + next 3 images rendered in the DOM.
+  // Non-current ones are hidden with opacity:0 so their <img> tags
+  // load images without being visible. When navigating forward,
+  // the already-mounted component (same React key) becomes visible
+  // instantly — zero re-fetching.
+  const PREFETCH_AHEAD = 3;
+  const len = images.length;
+  const poolIndices = [];
+  if (len > 0) {
+    for (let offset = 0; offset <= PREFETCH_AHEAD; offset++) {
+      const idx = (((currentIndex + offset) % len) + len) % len;
+      if (!poolIndices.includes(idx)) poolIndices.push(idx);
     }
-
-    setOriginalUrl(getOriginalUrl(currentIndex));
-    prefetchWindow(currentIndex);
-  }, [currentIndex, images, getOriginalForOrder, prefetchWindow]);
-
-  const currentImage = images[currentIndex];
+  }
 
   return (
     <div
@@ -136,16 +104,35 @@ export const Slideshow = () => {
       style={styles.container}
       onMouseMove={handleMouseMove}
       onClick={handleClick}>
-      <ImageComponent
-        image={currentImage}
-        originalUrl={originalUrl}
-        style={{
-          ...styles.image,
-          cursor: cursorStyle,
-          // height: currentImage?.originalHeight,
-          visibility: currentImage ? 'visible' : 'hidden',
-        }}
-      />
+      {poolIndices.map(idx => {
+        const image = images[idx];
+        const isCurrent = idx === currentIndex;
+        return (
+          <ImageComponent
+            key={idx}
+            image={image}
+            originalUrl={getOriginalUrl(idx)}
+            loading='eager'
+            style={{
+              ...styles.image,
+              ...(isCurrent
+                ? {
+                    cursor: cursorStyle,
+                    visibility: image ? 'visible' : 'hidden',
+                  }
+                : {
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    opacity: 0,
+                    pointerEvents: 'none',
+                  }),
+            }}
+          />
+        );
+      })}
     </div>
   );
 };
