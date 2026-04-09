@@ -28,7 +28,7 @@ const imageReducer = (file, { maxDimension = 800, quality = 0.7 } = {}) => {
                 reject(new Error('Canvas is empty or toBlob failed'));
               }
             },
-            'image/avif',
+            'image',
             quality,
           );
         } catch (err) {
@@ -107,10 +107,10 @@ export const handleUpload = async ({
   // === Resize and upload loader ===
   const resizedBlob = await imageReducer(file, { maxDimension: 320, quality: 0.4 });
 
-  const resizedPath = `images/loader/${baseName}.avif`;
+  const resizedPath = `images/loader/${baseName}.${extension}`;
   const resizedRef = ref(storage, resizedPath);
   const resizedUploadTask = uploadBytesResumable(resizedRef, resizedBlob, {
-    contentType: 'image/avif',
+    contentType: 'image/jpeg',
     cacheControl: 'public, max-age=31536000',
   });
   await resizedUploadTask;
