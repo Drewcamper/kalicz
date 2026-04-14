@@ -1,13 +1,11 @@
 export const styles = {
   container: {
-    // width: '100%',
-    height: 'calc(97vh - 59px)',
+    height: '100dvh',
     overflow: 'hidden',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
     padding: '48px 20px',
-    // margin: '0px 20px',
   },
 };

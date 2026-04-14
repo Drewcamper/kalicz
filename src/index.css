@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
   background-color: white;
   font-synthesis: none;
@@ -26,9 +32,9 @@ a {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
   min-width: 360px;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 button {

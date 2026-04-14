@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useImageContext } from '../../context';
 import { ImageComponent } from '../image/ImageComponent';
 import { styles } from './styles';
@@ -8,6 +8,16 @@ export const Slideshow = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorStyle, setCursorStyle] = useState('');
   const containerRef = useRef(null);
+  const directionRef = useRef('forward');
+  const readyIndicesRef = useRef(new Set());
+  const [, forceUpdate] = useState(0);
+
+  const handleOriginalLoad = useCallback(idx => {
+    if (!readyIndicesRef.current.has(idx)) {
+      readyIndicesRef.current.add(idx);
+      forceUpdate(n => n + 1);
+    }
+  }, []);
 
   const getOriginalUrl = index => {
     const img = images[index];
@@ -16,10 +26,12 @@ export const Slideshow = () => {
   };
 
   const goNext = () => {
+    directionRef.current = 'forward';
     setCurrentIndex(prev => (prev + 1) % images.length);
   };
 
   const goPrev = () => {
+    directionRef.current = 'backward';
     setCurrentIndex(prev => (prev - 1 + images.length) % images.length);
   };
 
@@ -83,17 +95,24 @@ export const Slideshow = () => {
     };
   }, [images]);
 
-  // Pool: current + next 3 images rendered in the DOM.
+  // Pool: current image + 1 behind (buffer) + 3 ahead in direction of travel.
   // Non-current ones are hidden with opacity:0 so their <img> tags
-  // load images without being visible. When navigating forward,
-  // the already-mounted component (same React key) becomes visible
+  // load images without being visible. When navigating, the
+  // already-mounted component (same React key) becomes visible
   // instantly — zero re-fetching.
   const PREFETCH_AHEAD = 3;
   const len = images.length;
   const poolIndices = [];
   if (len > 0) {
-    for (let offset = 0; offset <= PREFETCH_AHEAD; offset++) {
-      const idx = (((currentIndex + offset) % len) + len) % len;
+    const wrap = i => ((i % len) + len) % len;
+    const isForward = directionRef.current === 'forward';
+    // 1 image behind (opposite of travel direction)
+    poolIndices.push(wrap(currentIndex + (isForward ? -1 : 1)));
+    // Current
+    poolIndices.push(currentIndex);
+    // 3 ahead in travel direction
+    for (let i = 1; i <= PREFETCH_AHEAD; i++) {
+      const idx = wrap(currentIndex + (isForward ? i : -i));
       if (!poolIndices.includes(idx)) poolIndices.push(idx);
     }
   }
@@ -107,12 +126,16 @@ export const Slideshow = () => {
       {poolIndices.map(idx => {
         const image = images[idx];
         const isCurrent = idx === currentIndex;
+        // Defer rendering pool images until the current image's original has loaded
+        const currentIsReady = readyIndicesRef.current.has(currentIndex);
+        if (!isCurrent && !currentIsReady) return null;
         return (
           <ImageComponent
             key={idx}
             image={image}
             originalUrl={getOriginalUrl(idx)}
             loading='eager'
+            onOriginalLoad={() => handleOriginalLoad(idx)}
             style={{
               ...styles.image,
               ...(isCurrent

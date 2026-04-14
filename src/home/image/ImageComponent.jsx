@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import './styles.css';
 
-export const ImageComponent = ({ image, originalUrl, style, loading = 'lazy' }) => {
+export const ImageComponent = ({
+  image,
+  originalUrl,
+  style,
+  loading = 'lazy',
+  onOriginalLoad,
+}) => {
   const [loadedUrl, setLoadedUrl] = useState(null);
   const [loaderSrc, setLoaderSrc] = useState(image?.url);
   const [loaderReady, setLoaderReady] = useState(true);
@@ -36,6 +42,7 @@ export const ImageComponent = ({ image, originalUrl, style, loading = 'lazy' }) 
         className='image-component'
         loading={loading}
         decoding='async'
+        style={{ visibility: isOriginalReady ? 'hidden' : 'visible' }}
         onLoad={() => {
           setLoaderReady(true);
         }}
@@ -49,6 +56,7 @@ export const ImageComponent = ({ image, originalUrl, style, loading = 'lazy' }) 
           style={{ visibility: showOriginalOverlay ? 'visible' : 'hidden' }}
           onLoad={() => {
             setLoadedUrl(originalUrl);
+            onOriginalLoad?.();
           }}
         />
       )}
