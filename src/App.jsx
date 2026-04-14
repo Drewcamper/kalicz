@@ -50,9 +50,8 @@ function App() {
       <Router>
         <div
           style={{
-            height: '100dvh',
+            minHeight: '100dvh',
             width: '100vw',
-            overflow: 'hidden',
           }}>
           <AppContent />
         </div>
