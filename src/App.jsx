@@ -7,6 +7,7 @@ import IndexPage from './home/index/IndexPage';
 import { Menu } from './home/menu';
 import Contacts from './home/contacts';
 import { Slideshow } from './home/slideshow';
+import CategoryPage from './home/category/CategoryPage';
 
 import { ImageProvider, useImageContext } from './context';
 
@@ -31,6 +32,11 @@ const AppContent = () => {
           path='/index'
           element={phoneView ? <Navigate to='/' replace /> : <IndexPage />}
         />
+
+        {/* Category routes: Scene / Table / On Set */}
+        <Route path='/scene' element={<CategoryPage category='scene' eyebrow='02' />} />
+        <Route path='/table' element={<CategoryPage category='table' eyebrow='03' />} />
+        <Route path='/on-set' element={<CategoryPage category='onset' eyebrow='04' />} />
 
         {/* Admin route */}
         <Route path='/admin' element={<Admin />} />

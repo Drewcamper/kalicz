@@ -1,4 +1,6 @@
+import { Link, NavLink } from 'react-router-dom';
 import { useImageContext } from '../../context';
+import { CATEGORIES } from '../../constants/categories';
 import './styles.css';
 
 export const Menu = ({ onContactClick }) => {
@@ -11,32 +13,35 @@ export const Menu = ({ onContactClick }) => {
     });
   };
 
+  // "Index" already has its own dedicated wordmark ("Máté Kalicz" ->
+  // slideshow) / "Index" split on desktop; on phone both collapse
+  // onto "/", so the separate Index link is only shown on desktop.
+  const navCategories = CATEGORIES.filter(c => c.key !== 'index');
+
   return (
     <div className='container'>
-      {phoneView ? (
-        <a className='link' onClick={scrollToTop}>
-          Mate Kalicz
-        </a>
-      ) : (
-        <>
-          <a href='/' className='link'>
-            Mate Kalicz
-          </a>
-          <a href='/index' className='link'>
-            Index
-          </a>
-        </>
+      <Link to='/' className='word' onClick={scrollToTop}>
+        Máté Kalicz
+      </Link>
+
+      {!phoneView && (
+        <NavLink
+          to='/index'
+          className={({ isActive }) => `link${isActive ? ' active' : ''}`}>
+          Index
+        </NavLink>
       )}
 
-      <a
-        onClick={onContactClick}
-        className='link'
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 0,
-        }}>
+      {navCategories.map(({ key, label, path }) => (
+        <NavLink
+          key={key}
+          to={path}
+          className={({ isActive }) => `link${isActive ? ' active' : ''}`}>
+          {label}
+        </NavLink>
+      ))}
+
+      <a onClick={onContactClick} className='link info-link'>
         Information
       </a>
     </div>

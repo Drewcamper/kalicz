@@ -10,18 +10,35 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: 'helvetica';
+  font-family: 'Helvetica Neue', 'helvetica', Helvetica, Arial, sans-serif;
   font-size: 11px;
+
+  /* Shared design tokens — used by Menu, Contacts and the category
+     pages (Scene / Table / On Set) so the whole site reads as one
+     system instead of per-page one-off styling. */
+  --paper: #ffffff;
+  --ink: #0a0a0a;
+  --soft: #969690;
+  --line: #e4e3dc;
+  --m: 12px;
+}
+
+/* Paths fixed to match the files actually shipped under public/fonts
+   (they previously pointed at a non-existent /fonts/woff2/ folder,
+   so the italic serif accent below was silently falling back to the
+   browser default the whole time). */
+@font-face {
+  font-family: 'comorant-garamond';
+  src: url('/fonts/CormorantGaramond-SemiBoldItalic.ttf');
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'helvetica-light';
-  src: url('/fonts/woff2/Helvetica-Light.ttf');
-}
-
-@font-face {
-  font-family: 'comorant-garamond';
-  src: url('/fonts/woff2/CormorantGaramond-SemiBoldItalic.ttf');
+  src: url('/fonts/Helvetica-Light-05.ttf');
+  font-display: swap;
 }
 
 a {

@@ -2,19 +2,25 @@
   font-family: 'comorant-garamond';
   font-style: italic;
   font-weight: 600;
-  opacity: 0.5;
+  font-size: 13px;
+  color: var(--soft);
+  opacity: 0.7;
 }
 
-@media (max-width: 450px) {
-  .whiteBg {
-    width: 80vw !important;
+.close:hover .closeText {
+  color: var(--ink);
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .info-panel {
+    max-width: 82vw;
   }
 
-  .contacts {
-    width: 80vw !important;
-  }
-
+  /* Not enough room to hang "Close" off the panel's right edge on
+     narrow screens — pin it inside the panel instead. */
   .close {
-    width: '20vw';
+    left: auto !important;
+    right: 24px;
   }
 }

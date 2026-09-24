@@ -8,4 +8,11 @@ export const styles = {
     position: 'relative',
     padding: '48px 20px',
   },
+  // Used when the slideshow is embedded inside a category page
+  // (Scene / Table / On Set) instead of owning the full viewport.
+  embeddedContainer: {
+    height: '100%',
+    padding: '0',
+  },
+  image: {},
 };
