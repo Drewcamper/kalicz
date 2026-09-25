@@ -7,7 +7,7 @@ import { Slideshow } from '../slideshow';
 import { getCategoryLabel } from '../../constants/categories';
 import './styles.css';
 
-// One page shape shared by Scene / Table / On Set: a section head
+// One page shape shared by Event / Table / On Set: a section head
 // (eyebrow + title + live slide counter), a slideshow of the
 // category's images, and a grid of the same images below it.
 function CategoryPage({ category, eyebrow }) {

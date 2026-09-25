@@ -4,7 +4,7 @@
 
 export const CATEGORIES = [
   { key: 'index', label: 'Index', path: '/index' },
-  { key: 'scene', label: 'Scene', path: '/scene' },
+  { key: 'event', label: 'Event', path: '/event' },
   { key: 'table', label: 'Table', path: '/table' },
   { key: 'onset', label: 'On Set', path: '/on-set' },
 ];

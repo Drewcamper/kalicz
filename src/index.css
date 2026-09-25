@@ -14,7 +14,7 @@
   font-size: 11px;
 
   /* Shared design tokens — used by Menu, Contacts and the category
-     pages (Scene / Table / On Set) so the whole site reads as one
+     pages (Event / Table / On Set) so the whole site reads as one
      system instead of per-page one-off styling. */
   --paper: #ffffff;
   --ink: #0a0a0a;

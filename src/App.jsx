@@ -33,8 +33,8 @@ const AppContent = () => {
           element={phoneView ? <Navigate to='/' replace /> : <IndexPage />}
         />
 
-        {/* Category routes: Scene / Table / On Set */}
-        <Route path='/scene' element={<CategoryPage category='scene' eyebrow='02' />} />
+        {/* Category routes: Event / Table / On Set */}
+        <Route path='/event' element={<CategoryPage category='event' eyebrow='02' />} />
         <Route path='/table' element={<CategoryPage category='table' eyebrow='03' />} />
         <Route path='/on-set' element={<CategoryPage category='onset' eyebrow='04' />} />
 

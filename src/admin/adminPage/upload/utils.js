@@ -70,7 +70,7 @@ export const handleUpload = async ({
   const extension = file.name.split('.').pop();
 
   // Namespaced per category so the same filename can exist in two
-  // different sections (e.g. "01.jpg" in both Scene and Table)
+  // different sections (e.g. "01.jpg" in both Event and Table)
   // without one upload silently overwriting the other in Storage.
   const originalPath = `images/original/${category}/${baseName}.${extension}`;
   const originalRef = ref(storage, originalPath);
