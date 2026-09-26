@@ -57,7 +57,12 @@ function App() {
         <div
           style={{
             minHeight: '100dvh',
-            width: '100vw',
+            // '100vw' includes the scrollbar's own width in most
+            // browsers, which was pushing the page wider than the
+            // actual viewport (a faint horizontal overflow you could
+            // nudge the page sideways to see). '100%' of the flex
+            // body correctly excludes it.
+            width: '100%',
           }}>
           <AppContent />
         </div>
