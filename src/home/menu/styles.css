@@ -1,12 +1,24 @@
 .container {
   display: flex;
   align-items: baseline;
+  justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px 26px;
   padding: 16px var(--m, 20px);
   position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   background: transparent;
+  border-bottom: 1px solid var(--line, #e4e3dc);
   z-index: 40;
+}
+
+.links {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px 26px;
 }
 
 .word {
@@ -40,7 +52,8 @@
 }
 
 @media (max-width: 450px) {
-  .container {
+  .container,
+  .links {
     gap: 8px 18px;
   }
 }

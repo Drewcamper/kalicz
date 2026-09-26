@@ -24,26 +24,28 @@ export const Menu = ({ onContactClick }) => {
         Máté Kalicz
       </Link>
 
-      {!phoneView && (
-        <NavLink
-          to='/index'
-          className={({ isActive }) => `link${isActive ? ' active' : ''}`}>
-          Index
-        </NavLink>
-      )}
+      <div className='links'>
+        {!phoneView && (
+          <NavLink
+            to='/index'
+            className={({ isActive }) => `link${isActive ? ' active' : ''}`}>
+            Index
+          </NavLink>
+        )}
 
-      {navCategories.map(({ key, label, path }) => (
-        <NavLink
-          key={key}
-          to={path}
-          className={({ isActive }) => `link${isActive ? ' active' : ''}`}>
-          {label}
-        </NavLink>
-      ))}
+        {navCategories.map(({ key, label, path }) => (
+          <NavLink
+            key={key}
+            to={path}
+            className={({ isActive }) => `link${isActive ? ' active' : ''}`}>
+            {label}
+          </NavLink>
+        ))}
 
-      <a onClick={onContactClick} className='link info-link'>
-        Information
-      </a>
+        <a onClick={onContactClick} className='link info-link'>
+          Information
+        </a>
+      </div>
     </div>
   );
 };

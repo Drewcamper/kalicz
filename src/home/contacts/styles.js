@@ -24,8 +24,11 @@ export const styles = {
   },
 
   close: {
+    // Pushed below the fixed top nav bar (and its border line) so
+    // "Close" never sits in the same band as the Menu links, which
+    // used to collide with it at narrow/medium viewport widths.
     position: 'absolute',
-    top: '24px',
+    top: '76px',
     left: 'calc(100% + 20px)',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
