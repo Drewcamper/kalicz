@@ -4,7 +4,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 10px 26px;
-  padding: 6px var(--m, 20px);
+  padding: 7px var(--m, 20px);
   /* Sits in normal document flow at the top of the page (not fixed),
      so it scrolls away with the rest of the content instead of
      staying pinned on scrollable pages (Index / Event / Table /

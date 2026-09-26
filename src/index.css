@@ -34,7 +34,7 @@ html {
      border-bottom), now that it sits in normal document flow instead
      of floating fixed — used to reserve exactly that much space
      above the home slideshow and category pages. */
-  --nav-h: 27px;
+  --nav-h: 29px;
 }
 
 /* Paths fixed to match the files actually shipped under public/fonts

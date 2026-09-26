@@ -8,7 +8,7 @@
   /* Menu now sits in normal flow above this (no longer a fixed
      overlay), so it already pushes this down by its own height —
      this is just the small breathing gap beneath it. */
-  padding: 14px var(--m) 64px;
+  padding: 7px var(--m) 64px;
 }
 
 .section-head {
@@ -16,7 +16,9 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 20px;
-  padding: 14px 0 6px;
+  /* Same tight vertical rhythm as the Menu bar above it, so the two
+     hairline-divided rows read as one consistent system. */
+  padding: 7px 0 6px;
   border-bottom: 1px solid var(--line);
   margin-bottom: 24px;
 }
