@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Safety net: catches any stray sub-pixel/negative-margin overflow
+     (masonry grids use a small negative margin-left trick) so it can
+     never register as page-level horizontal scroll — the page should
+     never be nudgeable sideways. */
+  overflow-x: hidden;
+}
+
 :root {
   background-color: white;
   font-synthesis: none;
@@ -26,7 +34,7 @@
      border-bottom), now that it sits in normal document flow instead
      of floating fixed — used to reserve exactly that much space
      above the home slideshow and category pages. */
-  --nav-h: 35px;
+  --nav-h: 27px;
 }
 
 /* Paths fixed to match the files actually shipped under public/fonts
