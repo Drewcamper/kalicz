@@ -5,8 +5,10 @@
    site (hairline dividers, soft grey secondary text, tabular nums). */
 
 .category-page {
-  padding: 0 var(--m) 64px;
-  padding-top: calc(56px + 14px); /* clears the fixed header/menu */
+  /* Menu now sits in normal flow above this (no longer a fixed
+     overlay), so it already pushes this down by its own height —
+     this is just the small breathing gap beneath it. */
+  padding: 14px var(--m) 64px;
 }
 
 .section-head {
@@ -114,10 +116,6 @@
 }
 
 @media (max-width: 560px) {
-  .category-page {
-    padding-top: calc(48px + 14px);
-  }
-
   .category-slideshow {
     height: 60vh;
     max-height: 480px;

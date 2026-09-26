@@ -5,11 +5,12 @@
   flex-wrap: wrap;
   gap: 10px 26px;
   padding: 16px var(--m, 20px);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: transparent;
+  /* Sits in normal document flow at the top of the page (not fixed),
+     so it scrolls away with the rest of the content instead of
+     staying pinned on scrollable pages (Index / Event / Table /
+     On Set). */
+  position: relative;
+  background: var(--paper, #fff);
   border-bottom: 1px solid var(--line, #e4e3dc);
   z-index: 40;
 }

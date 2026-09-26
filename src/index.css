@@ -21,6 +21,12 @@
   --soft: #969690;
   --line: #e4e3dc;
   --m: 12px;
+
+  /* Rendered height of the top Menu bar (padding + text + its
+     border-bottom), now that it sits in normal document flow instead
+     of floating fixed — used to reserve exactly that much space
+     above the home slideshow and category pages. */
+  --nav-h: 47px;
 }
 
 /* Paths fixed to match the files actually shipped under public/fonts

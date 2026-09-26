@@ -1,6 +1,9 @@
 export const styles = {
   container: {
-    height: '100dvh',
+    // The Menu bar above it now takes real space (it's no longer a
+    // fixed overlay), so the slideshow only needs to fill what's left
+    // of the viewport.
+    height: 'calc(100dvh - var(--nav-h, 47px))',
     overflow: 'hidden',
     display: 'flex',
     justifyContent: 'center',
