@@ -11,7 +11,7 @@ import './styles.css';
 // (eyebrow + title + live slide counter), a slideshow of the
 // category's images, and a grid of the same images below it.
 function CategoryPage({ category, eyebrow }) {
-  const { loaderImagesByCategory, getOriginalFor } = useImageContext();
+  const { loaderImagesByCategory, getOriginalFor, phoneView } = useImageContext();
   const images = loaderImagesByCategory[category] || [];
   const label = getCategoryLabel(category);
 
@@ -71,31 +71,50 @@ function CategoryPage({ category, eyebrow }) {
         </span>
       </div>
 
-      <div className='category-slideshow'>
-        <Slideshow
-          images={images}
-          getOriginalForOrder={getOriginalForOrder}
-          embedded
-          onIndexChange={(index, total) => setSlidePos({ index, total })}
-        />
-      </div>
+      {/* Phone: same header/section-head above, but the embedded
+          slideshow is swapped for a plain scrollable feed (one image
+          per row, big vertical gaps) — same pattern the Index page
+          already uses on phone, instead of a swipeable carousel. */}
+      {!phoneView && (
+        <div className='category-slideshow'>
+          <Slideshow
+            images={images}
+            getOriginalForOrder={getOriginalForOrder}
+            embedded
+            onIndexChange={(index, total) => setSlidePos({ index, total })}
+          />
+        </div>
+      )}
 
       <div className='category-grid' ref={gridRef}>
-        <Masonry
-          breakpointCols={{ default: 3, 900: 2, 560: 1 }}
-          className='category-masonry-grid'
-          columnClassName='category-masonry-grid_column'>
-          {images.map((image, index) => (
+        {phoneView ? (
+          images.map((image, index) => (
             <div
               key={image.id}
               data-image-order={image.order}
-              className='category-grid-item'
+              className='category-grid-item category-feed-item'
               style={{ '--d': `${index * 0.03}s` }}
               onClick={() => setPreviewImage(image)}>
               <ImageComponent image={image} originalUrl={originalUrls[image.order]} />
             </div>
-          ))}
-        </Masonry>
+          ))
+        ) : (
+          <Masonry
+            breakpointCols={{ default: 3, 900: 2, 560: 1 }}
+            className='category-masonry-grid'
+            columnClassName='category-masonry-grid_column'>
+            {images.map((image, index) => (
+              <div
+                key={image.id}
+                data-image-order={image.order}
+                className='category-grid-item'
+                style={{ '--d': `${index * 0.03}s` }}
+                onClick={() => setPreviewImage(image)}>
+                <ImageComponent image={image} originalUrl={originalUrls[image.order]} />
+              </div>
+            ))}
+          </Masonry>
+        )}
       </div>
 
       {previewImage && (

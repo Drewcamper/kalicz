@@ -94,6 +94,17 @@
   display: block;
 }
 
+/* Phone: plain vertical feed instead of the masonry grid — one image
+   per row with a large gap, the same rhythm the Index page's own
+   phone feed uses, so it reads as one consistent site-wide pattern. */
+.category-feed-item {
+  margin-bottom: 21vh;
+}
+
+.category-feed-item:last-child {
+  margin-bottom: 0;
+}
+
 .category-preview-overlay {
   position: fixed;
   inset: 0;
