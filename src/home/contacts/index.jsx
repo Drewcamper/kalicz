@@ -3,27 +3,26 @@ import { styles } from './styles';
 
 function Contacts({ handleContactClick }) {
   return (
-    <div style={styles.contactBox}>
-      <div style={styles.whiteBg} className='whiteBg'>
-        <div style={styles.contacts} className='contacts'>
-          <div style={styles.introduction}>
-            Mate Kalicz is a visual artist based in Budapest, Hungary.
-          </div>
-          <div style={styles.introduction}>
-            He combines applied work with a personal approach.{' '}
-          </div>
-          <div style={styles.refers}>
-            <a href='mailto:matekalicz@gmail.com'>matekalicz@gmail.com</a>
-            <a href='tel:+36309563018'>+36309563018</a>
-            <a href='https://www.instagram.com/matekalicz' target='_blank'>
-              @matekalicz
-            </a>
-          </div>
+    <div className='info-scrim' style={styles.scrim} onClick={handleContactClick}>
+      <div
+        className='info-panel'
+        style={styles.panel}
+        onClick={e => e.stopPropagation()}>
+        <div className='close' style={styles.close} onClick={handleContactClick}>
+          <span className='closeText'>Close</span>
         </div>
-      </div>
-      <div style={styles.close} className='close' onClick={handleContactClick}>
-        <div style={styles.closeText} className='closeText'>
-          Close
+
+        <p style={styles.introduction}>
+          Máté Kalicz is a visual artist based in Budapest, Hungary.
+        </p>
+        <p style={styles.introduction}>He combines applied work with a personal approach.</p>
+
+        <div style={styles.refers} className='refers'>
+          <a href='mailto:matekalicz@gmail.com'>matekalicz@gmail.com</a>
+          <a href='tel:+36309563018'>+36309563018</a>
+          <a href='https://www.instagram.com/matekalicz' target='_blank' rel='noopener noreferrer'>
+            @matekalicz
+          </a>
         </div>
       </div>
     </div>

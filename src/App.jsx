@@ -7,6 +7,7 @@ import IndexPage from './home/index/IndexPage';
 import { Menu } from './home/menu';
 import Contacts from './home/contacts';
 import { Slideshow } from './home/slideshow';
+import CategoryPage from './home/category/CategoryPage';
 
 import { ImageProvider, useImageContext } from './context';
 
@@ -32,6 +33,11 @@ const AppContent = () => {
           element={phoneView ? <Navigate to='/' replace /> : <IndexPage />}
         />
 
+        {/* Category routes: Event / Table / On Set */}
+        <Route path='/event' element={<CategoryPage category='event' eyebrow='02' />} />
+        <Route path='/table' element={<CategoryPage category='table' eyebrow='03' />} />
+        <Route path='/on-set' element={<CategoryPage category='onset' eyebrow='04' />} />
+
         {/* Admin route */}
         <Route path='/admin' element={<Admin />} />
 
@@ -51,7 +57,12 @@ function App() {
         <div
           style={{
             minHeight: '100dvh',
-            width: '100vw',
+            // '100vw' includes the scrollbar's own width in most
+            // browsers, which was pushing the page wider than the
+            // actual viewport (a faint horizontal overflow you could
+            // nudge the page sideways to see). '100%' of the flex
+            // body correctly excludes it.
+            width: '100%',
           }}>
           <AppContent />
         </div>

@@ -1,6 +1,7 @@
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { toast } from 'react-toastify';
 import { createDocument } from '../../../services';
+import { DEFAULT_CATEGORY } from '../../../constants/categories';
 
 const imageReducer = (file, { maxDimension = 800, quality = 0.7 } = {}) => {
   return new Promise((resolve, reject) => {
@@ -54,6 +55,7 @@ export const getMaxOrder = images => {
 export const handleUpload = async ({
   file,
   order,
+  category = DEFAULT_CATEGORY,
   onUpload,
   setProgress,
   onImageUploaded,
@@ -67,8 +69,10 @@ export const handleUpload = async ({
   const baseName = file.name.replace(/\.[^/.]+$/, '');
   const extension = file.name.split('.').pop();
 
-  // === Upload original ===
-  const originalPath = `images/original/${baseName}.${extension}`;
+  // Namespaced per category so the same filename can exist in two
+  // different sections (e.g. "01.jpg" in both Event and Table)
+  // without one upload silently overwriting the other in Storage.
+  const originalPath = `images/original/${category}/${baseName}.${extension}`;
   const originalRef = ref(storage, originalPath);
   const originalUploadTask = uploadBytesResumable(originalRef, file);
 
@@ -99,6 +103,7 @@ export const handleUpload = async ({
     url: originalURL,
     name: `${baseName}.${extension}`,
     order,
+    category,
     originalHeight,
     originalWidth,
   };
@@ -107,7 +112,7 @@ export const handleUpload = async ({
   // === Resize and upload loader ===
   const resizedBlob = await imageReducer(file, { maxDimension: 320, quality: 0.4 });
 
-  const resizedPath = `images/loader/${baseName}.${extension}`;
+  const resizedPath = `images/loader/${category}/${baseName}.${extension}`;
   const resizedRef = ref(storage, resizedPath);
   const resizedUploadTask = uploadBytesResumable(resizedRef, resizedBlob, {
     contentType: 'image/jpeg',
@@ -120,6 +125,7 @@ export const handleUpload = async ({
     url: resizedURL,
     name: `${baseName}.${extension}`,
     order,
+    category,
     originalHeight,
     originalWidth,
   };

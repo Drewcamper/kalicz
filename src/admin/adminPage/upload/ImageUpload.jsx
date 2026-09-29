@@ -1,19 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { toast } from 'react-toastify';
+import PropTypes from 'prop-types';
 import { styles } from './styles';
 import { handleUpload, getMaxOrder } from './utils';
 import { useImageContext } from '../../../context/index';
+import { DEFAULT_CATEGORY } from '../../../constants/categories';
 
-const ImageUpload = ({ onUpload }) => {
-  const { originalImages, setOriginalImages } = useImageContext();
+const ImageUpload = ({ category = DEFAULT_CATEGORY, onUpload }) => {
+  const { originalImagesByCategory, setOriginalImagesForCategory } = useImageContext();
+  const categoryImages = originalImagesByCategory[category] || [];
   const [selectedImages, setSelectedImages] = useState([]);
   const [progress, setProgress] = useState({});
   const [maxOrder, setMaxOrder] = useState(0);
 
   useEffect(() => {
-    setMaxOrder(getMaxOrder(originalImages));
-  }, [originalImages]);
+    setMaxOrder(getMaxOrder(categoryImages));
+  }, [categoryImages]);
 
   const handleDrop = async (acceptedFiles, rejectedFiles) => {
     if (rejectedFiles.length > 0) {
@@ -24,7 +27,7 @@ const ImageUpload = ({ onUpload }) => {
     if (acceptedFiles.length > 0) {
       setSelectedImages(acceptedFiles);
 
-      let currentMaxOrder = getMaxOrder(originalImages);
+      let currentMaxOrder = getMaxOrder(categoryImages);
 
       for (let i = 0; i < acceptedFiles.length; i++) {
         const file = acceptedFiles[i];
@@ -35,12 +38,13 @@ const ImageUpload = ({ onUpload }) => {
           await handleUpload({
             file,
             order,
+            category,
             onUpload: () => {
               onUpload?.();
             },
             setProgress,
             onImageUploaded: newImage => {
-              setOriginalImages(prev => {
+              setOriginalImagesForCategory(category, prev => {
                 const updated = [...prev, newImage];
                 return updated.sort((a, b) => a.order - b.order);
               });
@@ -87,6 +91,11 @@ const ImageUpload = ({ onUpload }) => {
       )}
     </div>
   );
+};
+
+ImageUpload.propTypes = {
+  category: PropTypes.string,
+  onUpload: PropTypes.func,
 };
 
 export default ImageUpload;

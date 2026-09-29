@@ -10,18 +10,41 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: 'helvetica';
+  font-family: 'Helvetica Neue', 'helvetica', Helvetica, Arial, sans-serif;
   font-size: 11px;
+
+  /* Shared design tokens — used by Menu, Contacts and the category
+     pages (Event / Table / On Set) so the whole site reads as one
+     system instead of per-page one-off styling. */
+  --paper: #ffffff;
+  --ink: #0a0a0a;
+  --soft: #969690;
+  --line: #e4e3dc;
+  --m: 12px;
+
+  /* Rendered height of the top Menu bar (padding + text + its
+     border-bottom), now that it sits in normal document flow instead
+     of floating fixed — used to reserve exactly that much space
+     above the home slideshow and category pages. */
+  --nav-h: 29px;
+}
+
+/* Paths fixed to match the files actually shipped under public/fonts
+   (they previously pointed at a non-existent /fonts/woff2/ folder,
+   so the italic serif accent below was silently falling back to the
+   browser default the whole time). */
+@font-face {
+  font-family: 'comorant-garamond';
+  src: url('/fonts/CormorantGaramond-SemiBoldItalic.ttf');
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'helvetica-light';
-  src: url('/fonts/woff2/Helvetica-Light.ttf');
-}
-
-@font-face {
-  font-family: 'comorant-garamond';
-  src: url('/fonts/woff2/CormorantGaramond-SemiBoldItalic.ttf');
+  src: url('/fonts/Helvetica-Light-05.ttf');
+  font-display: swap;
 }
 
 a {
@@ -31,10 +54,25 @@ a {
 
 body {
   margin: 0;
-  display: flex;
+  /* Was 'flex' (leftover Vite starter boilerplate) — as a flex row
+     container, it sized its single child (the app root div, below)
+     to its content's width instead of the full viewport once that
+     child stopped being position:fixed. Plain block flow just fills
+     the available width, as intended. */
   min-width: 360px;
   min-height: 100vh;
   min-height: 100dvh;
+  /* Safety net: catches any stray sub-pixel/negative-margin overflow
+     (masonry grids use a small negative margin-left trick) so it can
+     never register as page-level horizontal scroll. Deliberately on
+     body rather than html: giving the root <html> element its own
+     explicit overflow-x turns it into the scrolling box itself
+     instead of the normal viewport, which can throw off width/
+     scrollbar-gutter math elsewhere on the page (this is the likely
+     cause of a left/right nav asymmetry seen with real content
+     loaded). body clips the same stray overflow without that side
+     effect. */
+  overflow-x: hidden;
 }
 
 button {

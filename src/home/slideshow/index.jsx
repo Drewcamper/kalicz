@@ -1,16 +1,44 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { useImageContext } from '../../context';
 import { ImageComponent } from '../image/ImageComponent';
 import { styles } from './styles';
 
-export const Slideshow = () => {
-  const { images, getOriginalForOrder } = useImageContext();
+// `images` / `getOriginalForOrder` are optional overrides: pass them to
+// reuse this same slideshow (cursor hints, prefetch pool, keyboard nav)
+// scoped to one category — e.g. from CategoryPage, which also listens
+// via `onIndexChange` to show its own "n / total" counter in its
+// section head. Left unset, it behaves exactly as before: the
+// site-wide "/" slideshow over the default ("index") image pool from
+// context.
+export const Slideshow = ({
+  images: imagesProp,
+  getOriginalForOrder: getOriginalForOrderProp,
+  embedded = false,
+  onIndexChange,
+}) => {
+  const context = useImageContext();
+  const images = imagesProp || context.images;
+  const getOriginalForOrder = getOriginalForOrderProp || context.getOriginalForOrder;
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorStyle, setCursorStyle] = useState('');
   const containerRef = useRef(null);
   const directionRef = useRef('forward');
   const readyIndicesRef = useRef(new Set());
   const [, forceUpdate] = useState(0);
+
+  // Reset position if the underlying image pool changes identity
+  // (e.g. CategoryPage mounted with a different category).
+  useEffect(() => {
+    setCurrentIndex(0);
+    readyIndicesRef.current = new Set();
+  }, [images]);
+
+  useEffect(() => {
+    onIndexChange?.(currentIndex, images.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentIndex, images.length]);
 
   const handleOriginalLoad = useCallback(idx => {
     if (!readyIndicesRef.current.has(idx)) {
@@ -120,7 +148,10 @@ export const Slideshow = () => {
   return (
     <div
       ref={containerRef}
-      style={styles.container}
+      style={{
+        ...styles.container,
+        ...(embedded ? styles.embeddedContainer : {}),
+      }}
       onMouseMove={handleMouseMove}
       onClick={handleClick}>
       {poolIndices.map(idx => {
@@ -158,4 +189,11 @@ export const Slideshow = () => {
       })}
     </div>
   );
+};
+
+Slideshow.propTypes = {
+  images: PropTypes.array,
+  getOriginalForOrder: PropTypes.func,
+  embedded: PropTypes.bool,
+  onIndexChange: PropTypes.func,
 };

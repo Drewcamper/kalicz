@@ -4,14 +4,18 @@ import {
   updateDocument,
   getOneOriginalImage,
   fetchCollectionByOrder,
+  migrateLegacyCategory,
 } from '../../../../services';
+import { DEFAULT_CATEGORY } from '../../../../constants/categories';
+
+export { migrateLegacyCategory };
 
 // Helper function to get original and its loader pair by originalId
 export const getLinkedImages = async originalId => {
   const originalImage = await getOneOriginalImage(originalId);
-  const { order } = originalImage;
+  const { order, category = DEFAULT_CATEGORY } = originalImage;
 
-  const loaderImages = await fetchCollectionByOrder(order, true);
+  const loaderImages = await fetchCollectionByOrder(order, true, category);
   const loaderImage = loaderImages[0] || null;
 
   return { originalImage, loaderImage };
@@ -64,14 +68,20 @@ export const deleteImage = async originalId => {
 };
 
 // Helper function to identify and cleanup orphaned loader documents
+// (scoped per-category so an order collision across categories is
+// never mistaken for an orphan).
 export const cleanupOrphanedLoaders = async () => {
   try {
     const originals = await fetchCollection(false);
     const loaders = await fetchCollection(true);
 
     const orphanedLoaders = loaders.filter(loader => {
-      // A loader is orphaned if no original has the same order
-      return !originals.some(original => original.order === loader.order);
+      const loaderCategory = loader.category || DEFAULT_CATEGORY;
+      return !originals.some(
+        original =>
+          original.order === loader.order &&
+          (original.category || DEFAULT_CATEGORY) === loaderCategory,
+      );
     });
 
     if (orphanedLoaders.length === 0) {

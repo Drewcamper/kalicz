@@ -1,0 +1,149 @@
+/* Shared page shape for Event / Table / On Set: a section head
+   (eyebrow + title + live slide counter), an embedded slideshow, and
+   a grid of the same images below — the same construction across all
+   three categories, in the same style language as the rest of the
+   site (hairline dividers, soft grey secondary text, tabular nums). */
+
+.category-page {
+  /* Menu now sits in normal flow above this (no longer a fixed
+     overlay), so it already pushes this down by its own height —
+     this is just the small breathing gap beneath it. */
+  padding: 7px var(--m) 64px;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  /* Same tight vertical rhythm as the Menu bar above it, so the two
+     hairline-divided rows read as one consistent system. */
+  padding: 7px 0 6px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
+}
+
+.section-head-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.section-head .eyebrow {
+  font-size: 11px;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.section-head h1 {
+  margin: 0;
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.section-head .count {
+  font-size: 11px;
+  color: var(--soft);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.category-slideshow {
+  height: calc(88vh - 120px);
+  min-height: 320px;
+  max-height: 720px;
+  margin-bottom: 40px;
+}
+
+.category-grid {
+  margin-top: 8px;
+}
+
+.category-masonry-grid {
+  display: flex;
+  margin-left: -20px;
+  width: auto;
+}
+
+.category-masonry-grid_column {
+  padding-left: 20px;
+  background-clip: padding-box;
+}
+
+.category-grid-item {
+  margin-bottom: 20px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.9s ease,
+    transform 0.9s ease;
+  transition-delay: var(--d, 0s);
+}
+
+.category-grid-item.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.category-grid-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Phone: plain vertical feed instead of the masonry grid — one image
+   per row with a large gap, the same rhythm the Index page's own
+   phone feed uses, so it reads as one consistent site-wide pattern. */
+.category-feed-item {
+  margin-bottom: 21vh;
+}
+
+.category-feed-item:last-child {
+  margin-bottom: 0;
+}
+
+.category-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.category-preview-image {
+  max-width: 95%;
+  max-height: 95%;
+}
+
+@media (max-width: 900px) {
+  .category-slideshow {
+    height: calc(80vh - 100px);
+    max-height: 560px;
+  }
+}
+
+@media (max-width: 560px) {
+  .category-slideshow {
+    height: 60vh;
+    max-height: 480px;
+    margin-bottom: 28px;
+  }
+
+  .category-masonry-grid_column:only-child {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-grid-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

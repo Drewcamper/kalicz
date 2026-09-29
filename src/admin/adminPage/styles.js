@@ -30,6 +30,30 @@ export const styles = {
     borderRadius: '5px',
     cursor: 'pointer',
   },
+  categoryTabs: {
+    display: 'flex',
+    gap: '8px',
+    margin: '0 10px 10px',
+    flexWrap: 'wrap',
+  },
+  categoryTab: {
+    padding: '8px 16px',
+    backgroundColor: '#eee',
+    color: '#333',
+    border: '1px solid #ccc',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '13px',
+  },
+  categoryTabActive: {
+    backgroundColor: '#0a0a0a',
+    color: 'white',
+    borderColor: '#0a0a0a',
+  },
+  syncing: {
+    padding: '20px',
+    color: '#666',
+  },
   content: {
     display: 'flex',
     height: '100%',

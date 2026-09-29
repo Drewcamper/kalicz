@@ -2,18 +2,21 @@ import { useState } from 'react';
 import { doc, writeBatch, getFirestore } from 'firebase/firestore';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ToastContainer, toast } from 'react-toastify';
+import PropTypes from 'prop-types';
 import { ImageItem } from './imageItem';
 import { deleteImage, getLinkedImages, updateImageTitle } from './services';
 import { chunkImages, handleOnDragEnd } from './utils';
 import { useImageContext } from '../../../context';
+import { DEFAULT_CATEGORY } from '../../../constants/categories';
 import { styles } from './styles';
 
 const firestore = getFirestore();
 
-export const ShowImages = () => {
-  const { originalImages, setOriginalImages, refreshLoaderImages } = useImageContext();
-  const images = originalImages;
-  const setImages = setOriginalImages;
+export const ShowImages = ({ category = DEFAULT_CATEGORY }) => {
+  const { originalImagesByCategory, setOriginalImagesForCategory, refreshLoaderImages } =
+    useImageContext();
+  const images = originalImagesByCategory[category] || [];
+  const setImages = updater => setOriginalImagesForCategory(category, updater);
   const [error, setError] = useState(null);
   const [editingIndex, setEditingIndex] = useState(null);
   const [newIndex, setNewIndex] = useState(null);
@@ -228,8 +231,8 @@ export const ShowImages = () => {
                           handleEditIndex={handleEditIndex}
                           handleDelete={handleDelete}
                           handleUpdateName={handleUpdateName}
-                        />
-                      </div>
+                      />
+                    </div>
                     )}
                   </Draggable>
                 ))}
@@ -242,6 +245,10 @@ export const ShowImages = () => {
       <ToastContainer position='bottom-right' autoClose={3000} />
     </div>
   );
+};
+
+ShowImages.propTypes = {
+  category: PropTypes.string,
 };
 
 export default ShowImages;
