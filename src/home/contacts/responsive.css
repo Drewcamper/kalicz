@@ -18,9 +18,18 @@
   }
 
   /* Not enough room to hang "Close" off the panel's right edge on
-     narrow screens — pin it inside the panel instead. */
+     narrow screens. Pinning it inside the panel at a fixed top/right
+     offset (the old approach) could overlap the intro text once it
+     wrapped onto more lines on a narrow phone — "Close" and the text
+     ran into each other. Put it back in normal document flow instead,
+     as its own right-aligned row above the text (it's already first
+     in the DOM), so it always pushes the rest of the panel down by
+     exactly as much room as it needs, with no fixed offset to keep
+     in sync and no way to overlap. */
   .close {
-    left: auto !important;
-    right: 24px;
+    position: static !important;
+    display: block;
+    text-align: right;
+    margin: 0 0 20px;
   }
 }

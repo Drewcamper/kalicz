@@ -33,10 +33,29 @@ const AppContent = () => {
           element={phoneView ? <Navigate to='/' replace /> : <IndexPage />}
         />
 
-        {/* Category routes: Event / Table / On Set */}
-        <Route path='/event' element={<CategoryPage category='event' eyebrow='02' />} />
-        <Route path='/table' element={<CategoryPage category='table' eyebrow='03' />} />
-        <Route path='/on-set' element={<CategoryPage category='onset' eyebrow='04' />} />
+        {/* Category routes: Event / Table / On Set. Each CategoryPage
+            gets a `key` matching its category — without it, React
+            Router reuses the very same CategoryPage instance when you
+            click from one of these to another (they're the same
+            component type in the same spot in the tree), so its
+            internal state doesn't reset: the lazy-loaded full-res
+            images stay cached under their slot numbers (1, 2, 3…),
+            which every category restarts from, so the grid kept
+            showing the previous category's actual photos where the
+            slot numbers matched. The key forces a clean remount on
+            every switch. */}
+        <Route
+          path='/event'
+          element={<CategoryPage key='event' category='event' eyebrow='02' />}
+        />
+        <Route
+          path='/table'
+          element={<CategoryPage key='table' category='table' eyebrow='03' />}
+        />
+        <Route
+          path='/on-set'
+          element={<CategoryPage key='onset' category='onset' eyebrow='04' />}
+        />
 
         {/* Admin route */}
         <Route path='/admin' element={<Admin />} />
