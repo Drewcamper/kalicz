@@ -51,9 +51,16 @@
 }
 
 .category-slideshow {
-  height: calc(88vh - 120px);
+  /* Fill exactly what's left of the first screen below the Menu bar
+     and the section head, so opening an Event/Table/On Set page
+     shows only the slideshow — the grid stays fully below the fold
+     until the visitor actually scrolls down. 99px = section-head's
+     own height + its margin-bottom (24px) + the category-page's top
+     padding (7px) + this element's own margin-bottom (40px); --nav-h
+     is the Menu bar above it. Re-measure and update this number if
+     any of those spacings change again. */
+  height: calc(100dvh - var(--nav-h, 29px) - 99px);
   min-height: 320px;
-  max-height: 720px;
   margin-bottom: 40px;
 }
 
@@ -121,20 +128,11 @@
   max-height: 95%;
 }
 
-@media (max-width: 900px) {
-  .category-slideshow {
-    height: calc(80vh - 100px);
-    max-height: 560px;
-  }
-}
-
 @media (max-width: 560px) {
-  .category-slideshow {
-    height: 60vh;
-    max-height: 480px;
-    margin-bottom: 28px;
-  }
-
+  /* The slideshow itself isn't rendered at all below the phoneView
+     threshold (see CategoryPage.jsx) — this rule only matters for
+     the odd width where the masonry grid still renders as one
+     column. */
   .category-masonry-grid_column:only-child {
     width: 100%;
   }
