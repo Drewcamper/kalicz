@@ -87,7 +87,19 @@ export const deleteDocument = async (isLoader, documentId, imageUrl) => {
       if (storagePath) {
         const storage = getStorage();
         const imageRef = ref(storage, storagePath);
-        await deleteObject(imageRef);
+        try {
+          await deleteObject(imageRef);
+        } catch (storageError) {
+          // The file already being gone is not a real failure — the
+          // outcome we actually wanted (no file at that Storage path)
+          // is already true. This used to abort the whole delete here,
+          // leaving its Firestore document behind forever as an orphan
+          // that the public site kept rendering. Any other Storage
+          // error (permissions, network, ...) still aborts the delete.
+          if (storageError?.code !== 'storage/object-not-found') {
+            throw storageError;
+          }
+        }
       }
     }
 
