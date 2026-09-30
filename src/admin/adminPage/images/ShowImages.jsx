@@ -4,7 +4,12 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { ToastContainer, toast } from 'react-toastify';
 import PropTypes from 'prop-types';
 import { ImageItem } from './imageItem';
-import { deleteImage, getLinkedImages, updateImageTitle } from './services';
+import {
+  deleteImage,
+  getLinkedImages,
+  updateImageTitle,
+  cleanupOrphanedLoaders,
+} from './services';
 import { chunkImages, handleOnDragEnd } from './utils';
 import { useImageContext } from '../../../context';
 import { DEFAULT_CATEGORY } from '../../../constants/categories';
@@ -13,8 +18,12 @@ import { styles } from './styles';
 const firestore = getFirestore();
 
 export const ShowImages = ({ category = DEFAULT_CATEGORY }) => {
-  const { originalImagesByCategory, setOriginalImagesForCategory, refreshLoaderImages } =
-    useImageContext();
+  const {
+    originalImagesByCategory,
+    setOriginalImagesForCategory,
+    refreshLoaderImages,
+    refreshOriginalImages,
+  } = useImageContext();
   const images = originalImagesByCategory[category] || [];
   const setImages = updater => setOriginalImagesForCategory(category, updater);
   const [error, setError] = useState(null);
@@ -26,7 +35,25 @@ export const ShowImages = ({ category = DEFAULT_CATEGORY }) => {
     try {
       // First delete the image from Firestore and storage
       await deleteImage(id);
+    } catch (error) {
+      // deleteImage can fail partway through (e.g. the original's
+      // Storage file is removed but the linked loader's delete then
+      // throws), which used to leave an orphaned loader document that
+      // silently kept reappearing on the live site forever, with no
+      // way to notice from the admin UI. Sweep it up immediately
+      // instead of letting it rot, then surface the original error.
+      try {
+        await cleanupOrphanedLoaders();
+      } catch (cleanupError) {
+        console.error('Error cleaning up orphaned loaders after failed delete:', cleanupError);
+      }
+      await refreshLoaderImages();
+      await refreshOriginalImages();
+      setError(error.message);
+      return;
+    }
 
+    try {
       // Get the order of the deleted image before removing it
       const deletedImage = images.find(img => img.id === id);
       const deletedOrder = deletedImage?.order || 0;
@@ -70,10 +97,19 @@ export const ShowImages = ({ category = DEFAULT_CATEGORY }) => {
       }
 
       await batch.commit();
+      // Purge any orphaned loader (e.g. left over from an earlier
+      // partial delete) and re-verify both collections against
+      // Firestore rather than trusting the locally-recomputed orders.
+      await cleanupOrphanedLoaders();
       await refreshLoaderImages();
+      await refreshOriginalImages();
     } catch (error) {
       setError(error.message);
-      // Optionally: revert local state here if needed
+      // Local state may now disagree with Firestore (the batch reorder
+      // can fail partway through) — re-sync from the source of truth
+      // rather than leaving the admin list stuck on a bad guess.
+      await refreshLoaderImages();
+      await refreshOriginalImages();
     }
   };
 
@@ -143,13 +179,18 @@ export const ShowImages = ({ category = DEFAULT_CATEGORY }) => {
 
       await batch.commit();
       await refreshLoaderImages();
+      await refreshOriginalImages();
       setEditingIndex(null);
       setNewIndex(null);
       toast.success('Order updated successfully');
     } catch (error) {
       console.error('Order update error:', error);
       toast.error(`Failed to update order: ${error.message}`);
-      setImages(images); // Revert on error
+      // The batch can fail partway through, leaving Firestore's orders
+      // out of sync with what we just guessed locally — re-fetch rather
+      // than reverting to the (possibly now also stale) pre-edit state.
+      await refreshLoaderImages();
+      await refreshOriginalImages();
     } finally {
       setIsReordering(false);
     }
@@ -191,6 +232,7 @@ export const ShowImages = ({ category = DEFAULT_CATEGORY }) => {
               firestore,
               setError,
               refreshLoaderImages,
+              refreshOriginalImages,
             });
           } catch (error) {
             console.error('Drag error:', error);

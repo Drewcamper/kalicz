@@ -2,22 +2,30 @@ import { useState, useEffect } from 'react';
 import { getAuth, signOut } from 'firebase/auth';
 import ImageUpload from './upload/ImageUpload';
 import { ShowImages } from './images/ShowImages';
-import { migrateLegacyCategory } from './images/services';
+import { migrateLegacyCategory, cleanupOrphanedLoaders } from './images/services';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import { CATEGORIES, DEFAULT_CATEGORY } from '../../constants/categories';
+import { useImageContext } from '../../context';
 
 import { styles } from './styles';
 
 function AdminPage({ onLogout }) {
   const [activeCategory, setActiveCategory] = useState(DEFAULT_CATEGORY);
   const [isSyncing, setIsSyncing] = useState(true);
+  const { refreshLoaderImages } = useImageContext();
 
-  // One-time, idempotent: images uploaded before categories existed
-  // have no `category` field — tag them as "Index" so every admin
-  // query (which now always filters by category) still finds them.
-  // Safe to run on every login; it's a no-op once nothing is missing
-  // the field.
+  // One-time, idempotent maintenance run on every admin login:
+  // - images uploaded before categories existed have no `category`
+  //   field — tag them as "Index" so every admin query (which now
+  //   always filters by category) still finds them.
+  // - a loader (thumbnail) document whose matching original was
+  //   deleted, but whose own delete failed partway through (e.g. its
+  //   Storage file was already gone), is an orphan: nothing in admin
+  //   references it any more, yet the public site still renders it
+  //   straight off the loader collection, so a "deleted" photo can
+  //   keep reappearing on matekalicz.com indefinitely. Sweeping these
+  //   on every admin session is a safe no-op once nothing is orphaned.
   useEffect(() => {
     let cancelled = false;
 
@@ -27,8 +35,14 @@ function AdminPage({ onLogout }) {
         if (!cancelled && migrated > 0) {
           toast.info(`${migrated} régi kép Index kategóriába sorolva`);
         }
+
+        const { cleaned } = await cleanupOrphanedLoaders();
+        if (!cancelled && cleaned > 0) {
+          toast.info(`${cleaned} elárvult (törölt, de meg nem jelenített) kép eltávolítva`);
+          await refreshLoaderImages();
+        }
       } catch (error) {
-        console.error('Category migration failed:', error);
+        console.error('Admin maintenance sync failed:', error);
       } finally {
         if (!cancelled) setIsSyncing(false);
       }
@@ -37,6 +51,7 @@ function AdminPage({ onLogout }) {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleLogout = async () => {

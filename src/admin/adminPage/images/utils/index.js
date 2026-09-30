@@ -13,7 +13,15 @@ export const chunkImages = arr => {
 };
 
 export const handleOnDragEnd = async params => {
-  const { result, images, setImages, firestore, setError, refreshLoaderImages } = params;
+  const {
+    result,
+    images,
+    setImages,
+    firestore,
+    setError,
+    refreshLoaderImages,
+    refreshOriginalImages,
+  } = params;
   const { source, destination } = result;
 
   if (!destination) return;
@@ -60,11 +68,17 @@ export const handleOnDragEnd = async params => {
 
     await batch.commit();
     if (refreshLoaderImages) await refreshLoaderImages();
+    if (refreshOriginalImages) await refreshOriginalImages();
     toast.success('Order updated successfully');
   } catch (error) {
     console.error('Matrix drag error:', error);
     toast.error('Failed to update order');
     setError(error.message);
-    setImages(images);
+    // The batch can fail partway through, leaving Firestore's orders
+    // out of sync with the local guess — re-fetch instead of reverting
+    // to a snapshot that may itself already be stale.
+    if (refreshLoaderImages) await refreshLoaderImages();
+    if (refreshOriginalImages) await refreshOriginalImages();
+    else setImages(images);
   }
 };
