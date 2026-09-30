@@ -26,14 +26,21 @@ function CategoryPage({ category, eyebrow }) {
   );
 
   // Lazy-load originals for the grid as thumbnails scroll into view,
-  // and trigger the same rise-in reveal the Index page uses.
+  // and trigger the same rise-in reveal the Index page uses — toggled
+  // both ways (added on enter, removed on exit) so it replays every
+  // time an image scrolls back into view, rather than firing once and
+  // then leaving every image permanently visible no matter how far
+  // you scroll back up.
   useEffect(() => {
     if (!images.length) return undefined;
 
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
-          if (!entry.isIntersecting) return;
+          if (!entry.isIntersecting) {
+            entry.target.classList.remove('in-view');
+            return;
+          }
           entry.target.classList.add('in-view');
 
           const order = parseInt(entry.target.dataset.imageOrder, 10);
