@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Masonry from 'react-masonry-css';
 import { useImageContext } from '../../context';
@@ -12,8 +12,25 @@ import './styles.css';
 // category's images, and a grid of the same images below it.
 function CategoryPage({ category, eyebrow }) {
   const { loaderImagesByCategory, getOriginalFor, phoneView } = useImageContext();
-  const images = loaderImagesByCategory[category] || [];
   const label = getCategoryLabel(category);
+
+  // Defensive de-dupe: two loader documents that point at the exact same
+  // thumbnail file (a photo uploaded twice into the same category) would
+  // otherwise render as two grid/slideshow entries with different `order`
+  // values but identical images — visually "the same photo shows up twice
+  // in a row" since react-masonry-css places same-height items in whatever
+  // column is shortest, not strictly by order. Keep only the first entry
+  // for each distinct thumbnail URL.
+  const images = useMemo(() => {
+    const raw = loaderImagesByCategory[category] || [];
+    const seen = new Set();
+    return raw.filter(image => {
+      if (!image.url) return true;
+      if (seen.has(image.url)) return false;
+      seen.add(image.url);
+      return true;
+    });
+  }, [loaderImagesByCategory, category]);
 
   const [slidePos, setSlidePos] = useState({ index: 0, total: images.length });
   const [originalUrls, setOriginalUrls] = useState({});
