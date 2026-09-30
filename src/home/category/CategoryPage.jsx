@@ -14,20 +14,36 @@ function CategoryPage({ category, eyebrow }) {
   const { loaderImagesByCategory, getOriginalFor, phoneView } = useImageContext();
   const label = getCategoryLabel(category);
 
-  // Defensive de-dupe: two loader documents that point at the exact same
-  // thumbnail file (a photo uploaded twice into the same category) would
-  // otherwise render as two grid/slideshow entries with different `order`
-  // values but identical images — visually "the same photo shows up twice
-  // in a row" since react-masonry-css places same-height items in whatever
-  // column is shortest, not strictly by order. Keep only the first entry
-  // for each distinct thumbnail URL.
+  // Defensive de-dupe: two loader documents for the same underlying photo
+  // (a repeat upload, or one left behind by a delete that only partly
+  // succeeded) would otherwise render as two grid/slideshow entries with
+  // different `order` values but identical images — visually "the same
+  // photo shows up twice in a row" since react-masonry-css places
+  // same-height items in whatever column is shortest, not strictly by
+  // order. The thumbnail URL is NOT a safe identity for this: Firebase
+  // Storage mints a fresh download token on every upload, so the same
+  // file re-uploaded gets a different `url` each time even though it's
+  // the same photo — comparing raw URLs misses that case entirely. The
+  // upload filename is stable across re-uploads, so key on that instead
+  // (falling back to the URL's Storage path, then the raw URL, for the
+  // rare document missing a name). Keep only the first entry per key.
+  const getDedupeKey = image => {
+    if (image.name) return image.name;
+    if (image.url) {
+      const pathMatch = image.url.match(/\/o\/(.*?)\?/);
+      return pathMatch ? pathMatch[1] : image.url;
+    }
+    return null;
+  };
+
   const images = useMemo(() => {
     const raw = loaderImagesByCategory[category] || [];
     const seen = new Set();
     return raw.filter(image => {
-      if (!image.url) return true;
-      if (seen.has(image.url)) return false;
-      seen.add(image.url);
+      const key = getDedupeKey(image);
+      if (!key) return true;
+      if (seen.has(key)) return false;
+      seen.add(key);
       return true;
     });
   }, [loaderImagesByCategory, category]);

@@ -13,10 +13,28 @@ export { migrateLegacyCategory };
 // Helper function to get original and its loader pair by originalId
 export const getLinkedImages = async originalId => {
   const originalImage = await getOneOriginalImage(originalId);
-  const { order, category = DEFAULT_CATEGORY } = originalImage;
+  const { order, category = DEFAULT_CATEGORY, name } = originalImage;
 
   const loaderImages = await fetchCollectionByOrder(order, true, category);
-  const loaderImage = loaderImages[0] || null;
+
+  // Two different photos can end up sharing the same `order` within a
+  // category (this app's delete/reorder history has produced exactly
+  // that more than once) — when it happens, blindly taking
+  // loaderImages[0] can silently pair this original with a DIFFERENT
+  // photo's loader, which is how duplicate/ghost images have been
+  // quietly multiplying every time someone deletes or reorders. When
+  // more than one candidate comes back, prefer the one whose filename
+  // actually matches this original (upload always writes the same
+  // `name` to both documents in a pair).
+  let loaderImage = loaderImages[0] || null;
+  if (loaderImages.length > 1) {
+    const byName = loaderImages.find(loader => loader.name === name);
+    loaderImage = byName || loaderImages[0];
+    console.warn(
+      `Order collision: ${loaderImages.length} loader images share order ${order} in category "${category}" while linking original "${name}". ` +
+        (byName ? 'Resolved by filename match.' : 'No filename match — picked arbitrarily.'),
+    );
+  }
 
   return { originalImage, loaderImage };
 };
@@ -80,7 +98,13 @@ export const cleanupOrphanedLoaders = async () => {
       return !originals.some(
         original =>
           original.order === loader.order &&
-          (original.category || DEFAULT_CATEGORY) === loaderCategory,
+          (original.category || DEFAULT_CATEGORY) === loaderCategory &&
+          // Matching on order+category alone is exactly what let a
+          // genuinely orphaned loader hide behind an unrelated original
+          // that happened to land on the same order — filename is the
+          // one field upload always keeps identical between a real
+          // original/loader pair, so require it too.
+          original.name === loader.name,
       );
     });
 
