@@ -1,35 +1,19 @@
-.closeText {
-  font-family: 'comorant-garamond';
-  font-style: italic;
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--soft);
-  opacity: 0.7;
+.refers a {
+  display: inline-block;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
 }
 
-.close:hover .closeText {
-  color: var(--ink);
+.refers a:hover {
   opacity: 1;
 }
 
-@media (max-width: 640px) {
-  .info-panel {
-    max-width: 82vw;
-  }
-
-  /* Not enough room to hang "Close" off the panel's right edge on
-     narrow screens. Pinning it inside the panel at a fixed top/right
-     offset (the old approach) could overlap the intro text once it
-     wrapped onto more lines on a narrow phone — "Close" and the text
-     ran into each other. Put it back in normal document flow instead,
-     as its own right-aligned row above the text (it's already first
-     in the DOM), so it always pushes the rest of the panel down by
-     exactly as much room as it needs, with no fixed offset to keep
-     in sync and no way to overlap. */
-  .close {
-    position: static !important;
-    display: block;
-    text-align: right;
-    margin: 0 0 20px;
+@media (max-width: 480px) {
+  /* The clamp() floor (260px) already keeps the star from shrinking
+     below a legible size, but at the very narrowest phone widths the
+     16% side padding around the text starts to feel tight — ease it
+     back a touch. */
+  .info-star-text {
+    padding: 0 12% !important;
   }
 }

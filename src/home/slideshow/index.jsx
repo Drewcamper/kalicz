@@ -28,12 +28,50 @@ export const Slideshow = ({
   const readyIndicesRef = useRef(new Set());
   const [, forceUpdate] = useState(0);
 
+  // Slide transition: while `slide` is set, both the outgoing
+  // (slide.fromIndex) and incoming (slide.toIndex, === currentIndex)
+  // images render stacked and full-size, and `slideActive` flips one
+  // frame later to animate both from their start position to 0 — the
+  // outgoing sliding off in the direction of travel, the incoming
+  // sliding in from the opposite side it's coming from.
+  const [slide, setSlide] = useState(null);
+  const [slideActive, setSlideActive] = useState(false);
+  const slideRafRef = useRef(null);
+  const slideTimeoutRef = useRef(null);
+  const SLIDE_MS = 420;
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
   // Reset position if the underlying image pool changes identity
   // (e.g. CategoryPage mounted with a different category).
   useEffect(() => {
     setCurrentIndex(0);
     readyIndicesRef.current = new Set();
+    setSlide(null);
+    setSlideActive(false);
   }, [images]);
+
+  // Drive the two-frame "start position painted, then animate to 0"
+  // sequence, and clear the transition once it's finished.
+  useEffect(() => {
+    if (!slide) return undefined;
+
+    setSlideActive(false);
+    const raf1 = requestAnimationFrame(() => {
+      slideRafRef.current = requestAnimationFrame(() => setSlideActive(true));
+    });
+    slideTimeoutRef.current = setTimeout(() => {
+      setSlide(null);
+      setSlideActive(false);
+    }, SLIDE_MS + 40);
+
+    return () => {
+      cancelAnimationFrame(raf1);
+      if (slideRafRef.current) cancelAnimationFrame(slideRafRef.current);
+      clearTimeout(slideTimeoutRef.current);
+    };
+  }, [slide]);
 
   useEffect(() => {
     onIndexChange?.(currentIndex, images.length);
@@ -53,15 +91,29 @@ export const Slideshow = ({
     return getOriginalForOrder(img.order)?.url || null;
   };
 
-  const goNext = () => {
-    directionRef.current = 'forward';
-    setCurrentIndex(prev => (prev + 1) % images.length);
+  // Shared by goNext/goPrev: advances currentIndex and, when there's
+  // more than one image to slide between, records the outgoing index
+  // so the render below can animate both the old and new image.
+  // Ignored while a transition is already in flight, so a rapid
+  // double-click can't start a second animation out from under the
+  // first one.
+  const navigate = (computeNext, direction) => {
+    if (slide) return;
+    directionRef.current = direction;
+    if (images.length < 2 || prefersReducedMotion) {
+      setCurrentIndex(computeNext);
+      return;
+    }
+    setCurrentIndex(prevIndex => {
+      const nextIndex = computeNext(prevIndex);
+      setSlide({ fromIndex: prevIndex, toIndex: nextIndex, direction });
+      return nextIndex;
+    });
   };
 
-  const goPrev = () => {
-    directionRef.current = 'backward';
-    setCurrentIndex(prev => (prev - 1 + images.length) % images.length);
-  };
+  const goNext = () => navigate(prev => (prev + 1) % images.length, 'forward');
+
+  const goPrev = () => navigate(prev => (prev - 1 + images.length) % images.length, 'backward');
 
   const encodeToBase64 = str => {
     return window.btoa(unescape(encodeURIComponent(str)));
@@ -157,9 +209,54 @@ export const Slideshow = ({
       {poolIndices.map(idx => {
         const image = images[idx];
         const isCurrent = idx === currentIndex;
-        // Defer rendering pool images until the current image's original has loaded
+        const isSlideOutgoing = slide && idx === slide.fromIndex;
+        const isSlideIncoming = slide && idx === slide.toIndex;
+        // Defer rendering pool images until the current image's original
+        // has loaded — except the two images actively sliding, which must
+        // always render together or the outgoing one can get briefly
+        // culled right as the transition starts (it isn't "current" the
+        // instant currentIndex flips) and then mount straight into its
+        // end position with nothing to animate from, snapping instead of
+        // sliding.
         const currentIsReady = readyIndicesRef.current.has(currentIndex);
-        if (!isCurrent && !currentIsReady) return null;
+        if (!isCurrent && !currentIsReady && !isSlideOutgoing && !isSlideIncoming) return null;
+
+        let itemStyle;
+        if (isSlideOutgoing || isSlideIncoming) {
+          // Forward: incoming enters from the right (+100% -> 0),
+          // outgoing exits to the left (0 -> -100%). Backward: mirrored.
+          const sign = slide.direction === 'forward' ? 1 : -1;
+          const startX = isSlideIncoming ? sign * 100 : 0;
+          const endX = isSlideIncoming ? 0 : -sign * 100;
+          itemStyle = {
+            position: 'absolute',
+            inset: 0,
+            zIndex: isSlideIncoming ? 2 : 1,
+            visibility: image ? 'visible' : 'hidden',
+            cursor: isSlideIncoming ? cursorStyle : 'default',
+            transform: `translateX(${slideActive ? endX : startX}%)`,
+            transition: `transform ${SLIDE_MS}ms cubic-bezier(0.45, 0, 0.2, 1)`,
+          };
+        } else {
+          itemStyle = {
+            ...styles.image,
+            ...(isCurrent
+              ? {
+                  cursor: cursorStyle,
+                  visibility: image ? 'visible' : 'hidden',
+                }
+              : {
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  opacity: 0,
+                  pointerEvents: 'none',
+                }),
+          };
+        }
+
         return (
           <ImageComponent
             key={idx}
@@ -167,23 +264,7 @@ export const Slideshow = ({
             originalUrl={getOriginalUrl(idx)}
             loading='eager'
             onOriginalLoad={() => handleOriginalLoad(idx)}
-            style={{
-              ...styles.image,
-              ...(isCurrent
-                ? {
-                    cursor: cursorStyle,
-                    visibility: image ? 'visible' : 'hidden',
-                  }
-                : {
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    opacity: 0,
-                    pointerEvents: 'none',
-                  }),
-            }}
+            style={itemStyle}
           />
         );
       })}
