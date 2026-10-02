@@ -1,57 +1,61 @@
 export const styles = {
-  // The veil: only a faint wash over the rest of the screen, so the
-  // site stays visible behind it — matekalicz.com's own two-zone
-  // treatment rather than one flat, mostly-opaque scrim.
+  // No backdrop at all — only a fixed, full-viewport, invisible layer
+  // whose one job is to catch a click outside the star and close it.
+  // Flex-centers the star so it never needs its own fixed/centering
+  // math, and it ignores scroll entirely (no overflow of its own),
+  // which is what keeps it pinned to the middle of the screen while
+  // the actual page scrolls underneath.
   scrim: {
     position: 'fixed',
     inset: 0,
     zIndex: 100,
-    overflowY: 'auto',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     cursor: 'pointer',
   },
 
-  // The near-opaque panel behind the text column.
-  panel: {
+  starWrap: {
     position: 'relative',
-    minHeight: '100%',
-    width: '100%',
-    maxWidth: '320px',
-    boxSizing: 'border-box',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    padding: '24px 24px 40px',
+    width: 'clamp(260px, 56vw, 560px)',
     cursor: 'default',
   },
 
-  close: {
-    // Pushed below the fixed top nav bar (and its border line) so
-    // "Close" never sits in the same band as the Menu links, which
-    // used to collide with it at narrow/medium viewport widths.
+  starImg: {
+    display: 'block',
+    width: '100%',
+    height: 'auto',
+    userSelect: 'none',
+    pointerEvents: 'none',
+  },
+
+  // Centered over the star's bright core, kept narrower than the
+  // star itself so the text never reaches out into its points.
+  starText: {
     position: 'absolute',
-    top: '76px',
-    left: 'calc(100% + 20px)',
-    cursor: 'pointer',
-    whiteSpace: 'nowrap',
+    inset: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+    padding: '0 16%',
   },
 
   introduction: {
     fontSize: '13px',
-    lineHeight: 1.7,
+    lineHeight: 1.6,
     color: 'var(--ink)',
-    margin: '0 0 10px',
-    maxWidth: '260px',
+    margin: '0 0 8px',
   },
 
   refers: {
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
-    marginTop: '18px',
-    paddingTop: '16px',
-    borderTop: '1px solid var(--line)',
+    marginTop: '14px',
     fontSize: '13px',
-    lineHeight: 1.7,
+    lineHeight: 1.6,
     color: 'var(--ink)',
-    maxWidth: '260px',
   },
 };

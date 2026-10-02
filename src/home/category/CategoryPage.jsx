@@ -123,6 +123,21 @@ function CategoryPage({ category, eyebrow }) {
             embedded
             onIndexChange={(index, total) => setSlidePos({ index, total })}
           />
+          {/* Quiet hint that the grid is one scroll away — the
+              slideshow deliberately fills the whole first screen, so
+              without this nothing on screen suggests there's more
+              below the fold. */}
+          <div className='scroll-hint' aria-hidden='true'>
+            <svg width='13' height='13' viewBox='0 0 14 14' fill='none'>
+              <path
+                d='M2 5L7 10L12 5'
+                stroke='currentColor'
+                strokeWidth='1.3'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              />
+            </svg>
+          </div>
         </div>
       )}
 
