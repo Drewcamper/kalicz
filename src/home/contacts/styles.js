@@ -17,7 +17,7 @@ export const styles = {
 
   starWrap: {
     position: 'relative',
-    width: 'clamp(520px, 112vw, 1120px)',
+    width: 'clamp(442px, 95.2vw, 952px)',
     cursor: 'default',
   },
 
@@ -43,18 +43,21 @@ export const styles = {
   },
 
   introduction: {
-    fontSize: '13px',
+    fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+    fontWeight: 100,
+    fontSize: '14px',
     lineHeight: 1.6,
     color: 'var(--ink)',
-    margin: '0 0 8px',
+    margin: '0 0 14px',
   },
 
   refers: {
+    fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+    fontWeight: 100,
     display: 'flex',
     flexDirection: 'column',
     gap: '4px',
-    marginTop: '14px',
-    fontSize: '13px',
+    fontSize: '14px',
     lineHeight: 1.6,
     color: 'var(--ink)',
   },

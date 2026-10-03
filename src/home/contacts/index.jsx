@@ -17,10 +17,14 @@ function Contacts({ handleContactClick }) {
         <img src={infoStar} alt='' className='info-star-img' style={styles.starImg} />
 
         <div className='info-star-text' style={styles.starText}>
+          {/* One wrapping block (not two separate paragraphs) so the two
+              sentences sit close together as plain wrapped lines, the
+              way the reference comp shows them, rather than reading as
+              two distinct paragraphs with a visible gap between. */}
           <p style={styles.introduction}>
-            Máté Kalicz is a photographer based in Budapest, Hungary.
+            Máté Kalicz is a photographer based in Budapest, Hungary. He combines
+            applied work with a personal approach.
           </p>
-          <p style={styles.introduction}>He combines applied work with a personal approach.</p>
 
           <div style={styles.refers} className='refers'>
             <a href='mailto:matekalicz@gmail.com'>matekalicz@gmail.com</a>
