@@ -17,7 +17,9 @@ export const styles = {
 
   starWrap: {
     position: 'relative',
-    width: 'clamp(398px, 85.68vw, 857px)',
+    // 5% larger than the previous 398/85.68vw/857 cap (all three values
+    // scaled together so responsive behavior stays consistent).
+    width: 'clamp(418px, 89.96vw, 900px)',
     cursor: 'default',
   },
 
