@@ -15,9 +15,21 @@
      a touch. Targets the two text blocks directly (not a shared
      padding ancestor): absolutely-positioned elements size against
      their containing block's padding edge, not a parent's padding. */
-  .info-star-text p,
+  .info-star-text .introduction,
   .info-star-text .refers {
     left: 12% !important;
     right: 12% !important;
+  }
+}
+
+@media (max-width: 340px) {
+  /* The longer of the two intro sentences still wraps to an extra
+     line at 12% inset on the very narrowest phones (e.g. the 320px
+     viewport of an older/smaller iPhone), which pushes the
+     introduction block down into refers below it. Ease the inset
+     back further just on this block, just at this width. */
+  .info-star-text .introduction {
+    left: 7% !important;
+    right: 7% !important;
   }
 }

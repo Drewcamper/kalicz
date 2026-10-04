@@ -46,22 +46,25 @@ export const styles = {
   // so repositioning the contact block below never moves this.
   introduction: {
     position: 'absolute',
-    top: '39.8%',
+    // Moved down from the previous 39.8%.
+    top: '45%',
     left: '16%',
     right: '16%',
     margin: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    // Small explicit gap between the two sentence lines — same fluid
+    // scale as refers' inter-line gap below, instead of relying on
+    // lineHeight wrap spacing.
+    gap: 'clamp(2px, 0.3vw, 4px)',
     textAlign: 'center',
     fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
     fontWeight: 100,
     // Fluid, tied to the same 89.96vw the star itself scales with (14px
     // at the star's 900px cap ÷ 900px ≈ 1.4vw), with a 10px floor so it
-    // stays legible on phones instead of shrinking forever. lineHeight
-    // below is a unitless multiplier, so it (and therefore the two-line
-    // wrap gap) scales down together with the font automatically —
-    // that's what keeps this block from colliding with refers below on
-    // small screens.
+    // stays legible on phones instead of shrinking forever.
     fontSize: 'clamp(10px, 1.4vw, 14px)',
-    // Tight wrap gap between the two sentences of this one paragraph.
     lineHeight: 1.25,
     color: 'var(--ink)',
   },
