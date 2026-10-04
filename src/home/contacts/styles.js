@@ -17,7 +17,9 @@ export const styles = {
 
   starWrap: {
     position: 'relative',
-    width: 'clamp(398px, 85.68vw, 857px)',
+    // 5% larger than the previous 398/85.68vw/857 cap (all three values
+    // scaled together so responsive behavior stays consistent).
+    width: 'clamp(418px, 89.96vw, 900px)',
     cursor: 'default',
   },
 
@@ -51,7 +53,14 @@ export const styles = {
     textAlign: 'center',
     fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
     fontWeight: 100,
-    fontSize: '14px',
+    // Fluid, tied to the same 89.96vw the star itself scales with (14px
+    // at the star's 900px cap ÷ 900px ≈ 1.4vw), with a 10px floor so it
+    // stays legible on phones instead of shrinking forever. lineHeight
+    // below is a unitless multiplier, so it (and therefore the two-line
+    // wrap gap) scales down together with the font automatically —
+    // that's what keeps this block from colliding with refers below on
+    // small screens.
+    fontSize: 'clamp(10px, 1.4vw, 14px)',
     // Tight wrap gap between the two sentences of this one paragraph.
     lineHeight: 1.25,
     color: 'var(--ink)',
@@ -69,11 +78,14 @@ export const styles = {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '3px',
+    // Fluid like introduction's fontSize below, so the gap between the
+    // three contact lines shrinks together with the text on phones.
+    gap: 'clamp(2px, 0.3vw, 3px)',
     textAlign: 'center',
     fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
     fontWeight: 100,
-    fontSize: '14px',
+    // Same fluid scale as introduction — see its comment.
+    fontSize: 'clamp(10px, 1.4vw, 14px)',
     lineHeight: 1.3,
     color: 'var(--ink)',
   },
