@@ -62,9 +62,12 @@ export const styles = {
     fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
     fontWeight: 100,
     // Fluid, tied to the same 89.96vw the star itself scales with (14px
-    // at the star's 900px cap ÷ 900px ≈ 1.4vw), with a 10px floor so it
-    // stays legible on phones instead of shrinking forever.
-    fontSize: 'clamp(10px, 1.4vw, 14px)',
+    // at the star's 900px cap). An 8.5px floor — down from an earlier
+    // 10px, which still read a bit large/cramped against the star's
+    // narrower phone width — keeps it legible but more delicate on
+    // phones, where the floor is what actually governs the size (the
+    // vw term stays well under the floor at any real phone width).
+    fontSize: 'clamp(8.5px, 1.2vw, 14px)',
     lineHeight: 1.25,
     color: 'var(--ink)',
   },
@@ -88,7 +91,7 @@ export const styles = {
     fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
     fontWeight: 100,
     // Same fluid scale as introduction — see its comment.
-    fontSize: 'clamp(10px, 1.4vw, 14px)',
+    fontSize: 'clamp(8.5px, 1.2vw, 14px)',
     lineHeight: 1.3,
     color: 'var(--ink)',
   },
