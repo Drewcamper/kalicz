@@ -17,7 +17,7 @@ export const styles = {
 
   starWrap: {
     position: 'relative',
-    width: 'clamp(442px, 95.2vw, 952px)',
+    width: 'clamp(398px, 85.68vw, 857px)',
     cursor: 'default',
   },
 
@@ -29,36 +29,52 @@ export const styles = {
     pointerEvents: 'none',
   },
 
-  // Centered over the star's bright core, kept narrower than the
-  // star itself so the text never reaches out into its points.
+  // Positioning context for the two text blocks below. Padding here
+  // would NOT inset absolutely-positioned children (they size against
+  // the padding box, which equals the border box with no border set —
+  // padding only insets in-flow children), so the side margin is set
+  // directly on introduction/refers below instead.
   starText: {
     position: 'absolute',
     inset: 0,
+  },
+
+  // Pinned at a fixed height (measured against the star's own
+  // artwork) rather than centered as a group with the contact block,
+  // so repositioning the contact block below never moves this.
+  introduction: {
+    position: 'absolute',
+    top: '39.8%',
+    left: '16%',
+    right: '16%',
+    margin: 0,
+    textAlign: 'center',
+    fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
+    fontWeight: 100,
+    fontSize: '14px',
+    // Tight wrap gap between the two sentences of this one paragraph.
+    lineHeight: 1.25,
+    color: 'var(--ink)',
+  },
+
+  // Centered at 61.5% of the star's height — measured from the
+  // reference comp so the phone number (the middle line) lines up
+  // with the marked guide — independent of the introduction block.
+  refers: {
+    position: 'absolute',
+    top: '61.5%',
+    left: '16%',
+    right: '16%',
+    transform: 'translateY(-50%)',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: '3px',
     textAlign: 'center',
-    padding: '0 16%',
-  },
-
-  introduction: {
     fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
     fontWeight: 100,
     fontSize: '14px',
-    lineHeight: 1.6,
-    color: 'var(--ink)',
-    margin: '0 0 14px',
-  },
-
-  refers: {
-    fontFamily: "'helvetica-light', 'Helvetica Neue', Helvetica, Arial, sans-serif",
-    fontWeight: 100,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '4px',
-    fontSize: '14px',
-    lineHeight: 1.6,
+    lineHeight: 1.3,
     color: 'var(--ink)',
   },
 };

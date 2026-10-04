@@ -11,9 +11,13 @@
 @media (max-width: 480px) {
   /* The clamp() floor already keeps the star from shrinking below a
      legible size, but at the very narrowest phone widths the 16%
-     side padding around the text starts to feel tight — ease it back
-     a touch. */
-  .info-star-text {
-    padding: 0 12% !important;
+     side inset around the text starts to feel tight — ease it back
+     a touch. Targets the two text blocks directly (not a shared
+     padding ancestor): absolutely-positioned elements size against
+     their containing block's padding edge, not a parent's padding. */
+  .info-star-text p,
+  .info-star-text .refers {
+    left: 12% !important;
+    right: 12% !important;
   }
 }
