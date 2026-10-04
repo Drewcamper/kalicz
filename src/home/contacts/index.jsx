@@ -17,18 +17,18 @@ function Contacts({ handleContactClick }) {
         <img src={infoStar} alt='' className='info-star-img' style={styles.starImg} />
 
         <div className='info-star-text' style={styles.starText}>
-          {/* One wrapping block (not two separate paragraphs) so the two
-              sentences sit close together as plain wrapped lines, the
-              way the reference comp shows them, rather than reading as
-              two distinct paragraphs with a visible gap between. */}
-          <p style={styles.introduction}>
-            Máté Kalicz is a photographer based in Budapest, Hungary. He combines
-            applied work with a personal approach.
-          </p>
+          {/* Each sentence pinned to its own line (not relying on the
+              container's width to wrap it there), with a small explicit
+              gap between them — same flex-column pattern as .refers
+              below. */}
+          <div style={styles.introduction} className='introduction'>
+            <span>Máté Kalicz is a photographer based in Budapest, Hungary.</span>
+            <span>He combines applied work with a personal approach.</span>
+          </div>
 
           <div style={styles.refers} className='refers'>
             <a href='mailto:matekalicz@gmail.com'>matekalicz@gmail.com</a>
-            <a href='tel:+36309563018'>+36309563018</a>
+            <a href='tel:+36309563017'>+36309563017</a>
             <a
               href='https://www.instagram.com/matekalicz'
               target='_blank'
